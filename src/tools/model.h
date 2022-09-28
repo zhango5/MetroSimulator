@@ -424,7 +424,7 @@ public:
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
 
 private:
-    unsigned int   EntryDeviceID;
+    std::string    EntryDeviceID;
     std::string    EntryTimeHi;
     std::string    EntryTimeLo;
     unsigned char  TransStatusBeforeTrans;
@@ -496,6 +496,351 @@ private:
     unsigned char  SaleSectionID;
     std::string    SaleOperatorID;
     std::string    SaleBOMShiftID;
+};
+
+class YiKaTongTradePub : public IParser
+{
+public:
+    YiKaTongTradePub() {}
+    ~YiKaTongTradePub() {}
+
+public:
+    virtual unsigned int parse(const char *data) override;
+    virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+
+private:
+    unsigned short TxnType;
+    std::string    TransactionDateTimeHi;
+    std::string    TransactionDateTimeLo;
+    std::string    LineID;
+    std::string    StationID;
+    std::string    DeviceID;
+    unsigned char  ModeCode;
+    unsigned int   UDSN;
+    unsigned short ePurseTransactionType;
+    unsigned short CityCode_TransLocation;
+    unsigned short CityCode_BelongLocation;
+    std::string    TACSAMID;
+    std::string    TerminateNumber;
+    unsigned int   SAMSN;
+    unsigned char  SAK;
+    unsigned char  MainCardType;
+    unsigned char  SubCardType;
+    unsigned char  CardVer;
+    unsigned int   RechargeSN;
+    std::string    AddValueDate;
+    std::string    SaleDate;
+    unsigned int   SystemTraceSN;
+    unsigned int   TransactionType;
+};
+
+class YKTTicketPassengerComm_t : public IParser
+{
+public:
+    YKTTicketPassengerComm_t() {}
+    ~YKTTicketPassengerComm_t() {}
+
+public:
+    virtual unsigned int parse(const char *data) override;
+    virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+
+private:
+    std::string   PassengerCNName;
+    unsigned char IdentificationType = 0;
+    std::string   IdentificationCode;
+    std::string   TelephoneCode;
+    std::string   Address;
+    std::string   CompanyName;
+};
+
+class YKTTicketExit_t : public IParser
+{
+public:
+    YKTTicketExit_t() {}
+    ~YKTTicketExit_t() {}
+
+public:
+    virtual unsigned int parse(const char *data) override;
+    virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+
+private:
+    std::string   EntryDeviceID;
+    std::string   EntryTimeHi;
+    std::string   EntryTimeLo;
+    unsigned char TransStatusBeforeTrans = 0;
+    unsigned char TransStatusAfterTrans = 0;
+    int           RemainingValueBeforeTrans;
+    int           RemainingValueAfterTrans;
+    int           TransactionValue;
+    int           OriginalValue;
+};
+
+class YKTMetroStart_t : public IParser
+{
+public:
+    YKTMetroStart_t() {}
+    ~YKTMetroStart_t() {}
+
+public:
+    virtual unsigned int parse(const char *data) override;
+    virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+
+private:
+    unsigned char  SurchargeArea;
+    std::string    OperatorID;
+    std::string    BOMShiftID;
+};
+
+class CellPhoneTradePub : public IParser
+{
+public:
+    CellPhoneTradePub() {}
+    ~CellPhoneTradePub() {}
+
+public:
+    virtual unsigned int parse(const char *data) override;
+    virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+
+private:
+    unsigned short TxnType;
+    std::string    TransactionDateTimeHi;
+    std::string    TransactionDateTimeLo;
+    std::string    LineID;
+    std::string    StationID;
+    std::string    DeviceID;
+    unsigned int   TACSAMID;
+    unsigned char  ModeCode;
+    unsigned int   UDSN;
+    unsigned int   TransactionType;
+};
+
+class MobileDeduction_t : public IParser
+{
+public:
+    MobileDeduction_t() {}
+    ~MobileDeduction_t() {}
+
+public:
+    virtual unsigned int parse(const char *data) override;
+    virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+
+private:
+    unsigned short TicketFamilyType;
+    unsigned char  TicketType;
+    unsigned char  TestFlag;
+    unsigned int   IssuerCode;
+    unsigned int   IssuerSN;
+    unsigned short CityCode;
+    unsigned char  SIMType;
+    unsigned char  SIMStatus;
+    std::string    SIMID;
+    std::string    MobileNo;
+    unsigned int   SIMTransSN;
+    int            TransactionValue;
+    unsigned char  SIMStatusAfterTrans;
+    int            RemainingValueAfterTrans;
+    std::string    OperatorID;
+    std::string    BOMShiftID;
+};
+
+class BankCardTradePub : public IParser
+{
+public:
+    BankCardTradePub() {}
+    ~BankCardTradePub() {}
+
+public:
+    virtual unsigned int parse(const char *data) override;
+    virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+
+private:
+    unsigned short TxnType;
+    std::string    TransactionDateTimeHi;
+    std::string    TransactionDateTimeLo;
+    std::string    LineID;
+    std::string    StationID;
+    std::string    DeviceID;
+    unsigned int   TACSAMID;
+    unsigned char  ModeCode;
+    unsigned int   UDSN;
+    unsigned int   TransactionType;
+};
+
+class BankCardTicketComm_t : public IParser
+{
+public:
+    BankCardTicketComm_t() {}
+    ~BankCardTicketComm_t() {}
+
+public:
+    virtual unsigned int parse(const char *data) override;
+    virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+
+private:
+    unsigned short TicketFamilyType;
+    unsigned char  TicketType;
+    unsigned char  TicketCatalogID;
+    std::string    PrimaryAccount;
+    std::string    BankCode;
+    std::string    PosNo;
+    unsigned int   TerminNo;
+};
+
+class BankCardSurcharge_t : public IParser
+{
+public:
+    BankCardSurcharge_t() {}
+    ~BankCardSurcharge_t() {}
+
+public:
+    virtual unsigned int parse(const char *data) override;
+    virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+
+private:
+    int            PreAuthValue;
+    std::string    AuthCode;
+    unsigned char  SurchargeCode;
+    unsigned char  Paymentmeans;
+    std::string    SaleDeviceID;
+    int            TicketSaleValue;
+    unsigned char  SurchargeArea;
+    int            SurchargeValue;
+    int            DisSurchargeValue;
+    std::string    OperatorID;
+    std::string    BOMShiftID;
+    unsigned int   ReserveOne;
+    unsigned int   ReserveTwo;
+};
+
+class BankCardEntry_t : public IParser
+{
+public:
+    BankCardEntry_t() {}
+    ~BankCardEntry_t() {}
+
+public:
+    virtual unsigned int parse(const char *data) override;
+    virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+
+private:
+    int            PreAuthValue;
+    std::string    AuthCode;
+    unsigned int   ReserveOne;
+    unsigned int   ReserveTwo;
+};
+
+class BankCardExit_t : public IParser
+{
+public:
+    BankCardExit_t() {}
+    ~BankCardExit_t() {}
+
+public:
+    virtual unsigned int parse(const char *data) override;
+    virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+
+private:
+    int            TransValue;
+    int            DisTransValue;
+    std::string    StartDevice;
+    std::string    StartTimeHi;
+    std::string    StartTimeLo;
+    unsigned int   ReserveOne;
+    unsigned int   ReserveTwo;
+};
+
+class BankCardDeduction_t : public IParser
+{
+public:
+    BankCardDeduction_t() {}
+    ~BankCardDeduction_t() {}
+
+public:
+    virtual unsigned int parse(const char *data) override;
+    virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+
+private:
+    unsigned char  TestFlag;
+    BankCardPayment_t bcp;
+    int            TransactionValue;
+    int            RemainingValueAfterTrans;
+    std::string    OperatorID;
+    std::string    BOMShiftID;
+};
+
+class QRCodeTradePub : public IParser
+{
+public:
+    QRCodeTradePub() {}
+    ~QRCodeTradePub() {}
+
+public:
+    virtual unsigned int parse(const char *data) override;
+    virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+
+private:
+    unsigned short TxnType;
+    std::string    TransactionDateTimeHi;
+    std::string    TransactionDateTimeLo;
+    std::string    LineID;
+    std::string    StationID;
+    std::string    DeviceID;
+    unsigned int   TACSAMID;
+    unsigned char  ModeCode;
+    unsigned int   UDSN;
+    unsigned int   TransactionType;
+};
+
+class QRCodeTicketComm_t : public IParser
+{
+public:
+    QRCodeTicketComm_t() {}
+    ~QRCodeTicketComm_t() {}
+
+public:
+    virtual unsigned int parse(const char *data) override;
+    virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+
+private:
+    unsigned short TicketFamilyType;
+    unsigned char  TicketType;
+    unsigned short TicketCatalogID;
+    std::string    Uid;
+    std::string    QRCodeID;
+};
+
+class QRCodeUnnamed : public IParser
+{
+public:
+    QRCodeUnnamed() {}
+    ~QRCodeUnnamed() {}
+
+public:
+    virtual unsigned int parse(const char *data) override;
+    virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+
+private:
+    unsigned int   ReserveOne;
+    unsigned int   ReserveTwo;
+};
+
+class QRCodeExit_t : public IParser
+{
+public:
+    QRCodeExit_t() {}
+    ~QRCodeExit_t() {}
+
+public:
+    virtual unsigned int parse(const char *data) override;
+    virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+
+private:
+    int            TransValue;
+    std::string    StartDevice;
+    std::string    StartTimeHi;
+    std::string    StartTimeLo;
+    unsigned int   ReserveOne;
+    unsigned int   ReserveTwo;
 };
 
 #endif // MODEL_H

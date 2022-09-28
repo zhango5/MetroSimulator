@@ -26,6 +26,10 @@ public:
     static void QRCodeTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer
                                 , const QByteArray& ba);
 
+    static QString filePath;
+
+    static void output();
+
 private:
     static unsigned int YiPiaoTongHeaderPart(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer
                                              , const QByteArray& ba);

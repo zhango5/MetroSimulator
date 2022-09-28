@@ -89,6 +89,10 @@ std::string md5_string(const char *ptr)
     return std::string(str);
 }
 
+static QHash<unsigned int, QString> infos;
+
+QString FileParser::filePath;
+
 FileParser::FileParser()
 {
 
@@ -119,7 +123,8 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
     offset += len;
     YiPiaoTongTradePub traPub;
     TicketComm_t tc;
-    TicketEntry_t te;
+    TicketEntry_t tentry;
+    TicketExit_t texit;
     SJTInitComm_t sjtic;
     SJTSale_t sjts;
     CPUInitComm_t cpuit;
@@ -143,6 +148,11 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
         writer.StartObject();
 
         TxnType = _util.UInt(ba.data() + offset, len);
+
+        if (!infos.contains(TxnType))
+        {
+            infos.insert(TxnType, filePath);
+        }
 
         offset += traPub.parse(ba.data() + offset);
 
@@ -281,20 +291,20 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
         case 13:
             writer.Key("SubGlobalMessageId"); writer.String("01_13");
             offset += tc.parse(ba.data() + offset);
-            offset += te.parse(ba.data() + offset);
+            offset += tentry.parse(ba.data() + offset);
 
             tc.output(writer);
-            te.output(writer);
+            tentry.output(writer);
             break;
         case 14:
 //            offset += YiPiaoTongExitStation(writer, ba.mid(offset));
             writer.Key("SubGlobalMessageId"); writer.String("01_14");
             offset += tc.parse(ba.data() + offset);
-            offset += te.parse(ba.data() + offset);
+            offset += texit.parse(ba.data() + offset);
             offset += rs.parse(ba.data() + offset);
 
             tc.output(writer);
-            te.output(writer);
+            texit.output(writer);
             rs.output(writer);
             break;
         case 16:
@@ -355,62 +365,489 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
 
 void FileParser::YiKaTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer, const QByteArray &ba)
 {
-    unsigned int bytes = 0;
+//    unsigned int bytes = 0;
+
+//    writer.StartObject();
+
+//    bytes += YiKaTongHeaderPart(writer, ba);
+//    bytes += YiKaTongTxnListPart(writer, ba.mid(bytes));
+
+//    // MD5
+//    writer.Key("MD5"); writer.String(md5_string(ba.data() + bytes).c_str());
+
+//    writer.EndObject();
+
+    unsigned int offset = 0;
+    unsigned int len = 0;
+    Util _util;
+
+    DevOpFileHeader header;
+    offset += header.parse(ba.data());
 
     writer.StartObject();
 
-    bytes += YiKaTongHeaderPart(writer, ba);
-    bytes += YiKaTongTxnListPart(writer, ba.mid(bytes));
+    writer.Key("GlobalMessageId"); writer.String("02");
+    header.output(writer);
 
-    // MD5
-    writer.Key("MD5"); writer.String(md5_string(ba.data() + bytes).c_str());
+    writer.Key("TxnList");
+    writer.StartArray();
+
+    unsigned int TxnType = 0;
+    unsigned int TAC = 0;
+    std::string MD5;
+    unsigned int cnt = _util.UInt(ba.data() + offset, len);
+    offset += len;
+    YiKaTongTradePub traPub;
+    TicketComm_t tc;
+    CPUCardSale_t cpucs;
+    YKTTicketPassengerComm_t ykttpc;
+    CPUInitComm_t cpuit;
+    CPUCardAddValue_t cpucav;
+    CPUCardBlock_t cpucb;
+    TicketSurcharge_t ts;
+    TicketEntry_t tentry;
+    YKTTicketExit_t yktte;
+    RebateScheme_t rs;
+    YKTMetroStart_t yktms;
+
+    for (unsigned int i = 0; i < cnt; ++i)
+    {
+        writer.StartObject();
+
+        TxnType = _util.UInt(ba.data() + offset, len);
+
+        if (!infos.contains(TxnType))
+        {
+            infos.insert(TxnType, filePath);
+        }
+
+        offset += traPub.parse(ba.data() + offset);
+
+        traPub.output(writer);
+
+        switch (TxnType)
+        {
+        case 34:
+//            offset += YiKaTongSale(writer, ba.mid(offset));
+            writer.Key("SubGlobalMessageId"); writer.String("02_34");
+            offset += tc.parse(ba.data() + offset);
+            offset += cpucs.parse(ba.data() + offset);
+            offset += ykttpc.parse(ba.data() + offset);
+
+            tc.output(writer);
+            cpucs.output(writer);
+            ykttpc.output(writer);
+            break;
+        case 37:
+//            offset += YiKaTongRecharge(writer, ba.mid(offset));
+            writer.Key("SubGlobalMessageId"); writer.String("02_37");
+            offset += tc.parse(ba.data() + offset);
+            offset += cpuit.parse(ba.data() + offset);
+            offset += cpucav.parse(ba.data() + offset);
+
+            tc.output(writer);
+            cpuit.output(writer);
+            cpucav.output(writer);
+            break;
+        case 42:
+//            offset += YiKaTongLockCard(writer, ba.mid(offset));
+            writer.Key("SubGlobalMessageId"); writer.String("02_42");
+            offset += tc.parse(ba.data() + offset);
+            offset += cpucb.parse(ba.data() + offset);
+
+            tc.output(writer);
+            cpucb.output(writer);
+            break;
+        case 44:
+//            offset += YiKaTongUpdate(writer, ba.mid(offset));
+            writer.Key("SubGlobalMessageId"); writer.String("02_44");
+            offset += tc.parse(ba.data() + offset);
+            offset += ts.parse(ba.data() + offset);
+
+            tc.output(writer);
+            ts.output(writer);
+            break;
+        case 45:
+//            offset += YiKaTongEnterStation(writer, ba.mid(offset));
+            writer.Key("SubGlobalMessageId"); writer.String("02_45");
+            offset += tc.parse(ba.data() + offset);
+            offset += tentry.parse(ba.data() + offset);
+
+            tc.output(writer);
+            tentry.output(writer);
+            break;
+        case 46:
+//            offset += YiKaTongExitStation(writer, ba.mid(offset));
+            writer.Key("SubGlobalMessageId"); writer.String("02_46");
+            offset += tc.parse(ba.data() + offset);
+            offset += yktte.parse(ba.data() + offset);
+            offset += rs.parse(ba.data() + offset);
+
+            tc.output(writer);
+            yktte.output(writer);
+            rs.output(writer);
+            break;
+        case 49:
+//            offset += YiKaTongM1MetroApp(writer, ba.mid(offset));
+            writer.Key("SubGlobalMessageId"); writer.String("02_49");
+            offset += tc.parse(ba.data() + offset);
+            offset += yktms.parse(ba.data() + offset);
+
+            tc.output(writer);
+            yktms.output(writer);
+            break;
+        default:
+            break;
+        }
+
+        TAC = _util.UInt(ba.data() + offset, len);
+        offset += len;
+        writer.Key("TAC"); writer.Uint(TAC);
+
+        writer.EndObject();
+    }
+
+    writer.EndArray();
+
+    MD5 = _util.HEX(ba.data() + offset, len);
+    offset += len;
+    writer.Key("MD5"); writer.String(MD5.c_str());
 
     writer.EndObject();
 }
 
 void FileParser::PhoneTicketTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer, const QByteArray &ba)
 {
-    unsigned int bytes = 0;
+//    unsigned int bytes = 0;
+
+//    writer.StartObject();
+
+//    bytes += PhoneCardHeaderPart(writer, ba);
+//    bytes += PhoneCardTxnListPart(writer, ba.mid(bytes));
+
+//    // MD5
+//    writer.Key("MD5"); writer.String(md5_string(ba.data() + bytes).c_str());
+
+//    writer.EndObject();
+
+    unsigned int offset = 0;
+    unsigned int len = 0;
+    Util _util;
+
+    DevOpFileHeader header;
+    offset += header.parse(ba.data());
 
     writer.StartObject();
 
-    bytes += PhoneCardHeaderPart(writer, ba);
-    bytes += PhoneCardTxnListPart(writer, ba.mid(bytes));
+    writer.Key("GlobalMessageId"); writer.String("03");
+    header.output(writer);
 
-    // MD5
-    writer.Key("MD5"); writer.String(md5_string(ba.data() + bytes).c_str());
+    writer.Key("TxnList");
+    writer.StartArray();
+
+    unsigned int TxnType = 0;
+    unsigned int TAC = 0;
+    std::string MD5;
+    unsigned int cnt = _util.UInt(ba.data() + offset, len);
+    offset += len;
+    CellPhoneTradePub traPub;
+    TicketComm_t tc;
+    CPUCardSale_t cpucs;
+    YKTTicketPassengerComm_t ykttpc;
+    CPUInitComm_t cpuit;
+    CPUCardAddValue_t cpucav;
+    CPUCardBlock_t cpucb;
+    TicketSurcharge_t ts;
+    TicketEntry_t tentry;
+    YKTTicketExit_t yktte;
+    RebateScheme_t rs;
+    YKTMetroStart_t yktms;
+    MobileDeduction_t md;
+
+    for (unsigned int i = 0; i < cnt; ++i)
+    {
+        writer.StartObject();
+
+        TxnType = _util.UInt(ba.data() + offset, len);
+
+        offset += traPub.parse(ba.data() + offset);
+
+        traPub.output(writer);
+
+        switch (TxnType)
+        {
+        case 76:
+//            offset += PhoneCardUpdate(writer, ba.mid(offset));
+            writer.Key("SubGlobalMessageId"); writer.String("03_76");
+            offset += tc.parse(ba.data() + offset);
+            offset += ts.parse(ba.data() + offset);
+
+            tc.output(writer);
+            ts.output(writer);
+            break;
+        case 77:
+//            offset += PhoneCardEnterStation(writer, ba.mid(offset));
+            writer.Key("SubGlobalMessageId"); writer.String("03_77");
+            offset += tc.parse(ba.data() + offset);
+            offset += tentry.parse(ba.data() + offset);
+
+            tc.output(writer);
+            tentry.output(writer);
+            break;
+        case 78:
+//            offset += PhoneCardExitStation(writer, ba.mid(offset));
+            writer.Key("SubGlobalMessageId"); writer.String("03_78");
+            offset += tc.parse(ba.data() + offset);
+            offset += tentry.parse(ba.data() + offset);
+            offset += rs.parse(ba.data() + offset);
+
+            tc.output(writer);
+            tentry.output(writer);
+            rs.output(writer);
+            break;
+        case 80:
+//            offset += PhoneCardCutPayment(writer, ba.mid(offset));
+            writer.Key("SubGlobalMessageId"); writer.String("03_80");
+            offset += md.parse(ba.data() + offset);
+
+            md.output(writer);
+            break;
+        default:
+            break;
+        }
+
+        TAC = _util.UInt(ba.data() + offset, len);
+        offset += len;
+        writer.Key("TAC"); writer.Uint(TAC);
+
+        writer.EndObject();
+    }
+
+    writer.EndArray();
+
+    MD5 = _util.HEX(ba.data() + offset, len);
+    offset += len;
+    writer.Key("MD5"); writer.String(MD5.c_str());
 
     writer.EndObject();
 }
 
 void FileParser::BankCardTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer, const QByteArray &ba)
 {
-    unsigned int bytes = 0;
+//    unsigned int bytes = 0;
+
+//    writer.StartObject();
+
+//    bytes += BankCardHeaderPart(writer, ba);
+//    bytes += BankCardTxnListPart(writer, ba.mid(bytes));
+
+//    // MD5
+//    writer.Key("MD5"); writer.String(md5_string(ba.data() + bytes).c_str());
+
+//    writer.EndObject();
+
+    unsigned int offset = 0;
+    unsigned int len = 0;
+    Util _util;
+
+    DevOpFileHeader header;
+    offset += header.parse(ba.data());
 
     writer.StartObject();
 
-    bytes += BankCardHeaderPart(writer, ba);
-    bytes += BankCardTxnListPart(writer, ba.mid(bytes));
+    writer.Key("GlobalMessageId"); writer.String("04");
+    header.output(writer);
 
-    // MD5
-    writer.Key("MD5"); writer.String(md5_string(ba.data() + bytes).c_str());
+    writer.Key("TxnList");
+    writer.StartArray();
+
+    unsigned int TxnType = 0;
+    unsigned int TAC = 0;
+    std::string MD5;
+    unsigned int cnt = _util.UInt(ba.data() + offset, len);
+    offset += len;
+    BankCardTradePub traPub;
+    BankCardTicketComm_t bctc;
+    BankCardSurcharge_t bcs;
+    BankCardEntry_t bcen;
+    BankCardExit_t bcex;
+    BankCardDeduction_t bcd;
+
+    for (unsigned int i = 0; i < cnt; ++i)
+    {
+        writer.StartObject();
+
+        TxnType = _util.UInt(ba.data() + offset, len);
+
+        offset += traPub.parse(ba.data() + offset);
+
+        traPub.output(writer);
+
+        switch (TxnType)
+        {
+        case 108:
+//            offset += BankCardUpdate(writer, ba.mid(offset));
+            writer.Key("SubGlobalMessageId"); writer.String("04_108");
+            offset += bctc.parse(ba.data() + offset);
+            offset += bcs.parse(ba.data() + offset);
+
+            bctc.output(writer);
+            bcs.output(writer);
+            break;
+        case 109:
+//            offset += BankCardEnterStation(writer, ba.mid(offset));
+            writer.Key("SubGlobalMessageId"); writer.String("04_109");
+            offset += bctc.parse(ba.data() + offset);
+            offset += bcen.parse(ba.data() + offset);
+
+            bctc.output(writer);
+            bcen.output(writer);
+            break;
+            break;
+        case 110:
+//            offset += BankCardExitStation(writer, ba.mid(offset));
+            writer.Key("SubGlobalMessageId"); writer.String("04_110");
+            offset += bctc.parse(ba.data() + offset);
+            offset += bcex.parse(ba.data() + offset);
+
+            bctc.output(writer);
+            bcex.output(writer);
+            break;
+        case 112:
+//            offset += BankCardCutPayment(writer, ba.mid(offset));
+            writer.Key("SubGlobalMessageId"); writer.String("04_112");
+            offset += bcd.parse(ba.data() + offset);
+
+            bcd.output(writer);
+            break;
+        default:
+            break;
+        }
+
+        TAC = _util.UInt(ba.data() + offset, len);
+        offset += len;
+        writer.Key("TAC"); writer.Uint(TAC);
+
+        writer.EndObject();
+    }
+
+    writer.EndArray();
+
+    MD5 = _util.HEX(ba.data() + offset, len);
+    offset += len;
+    writer.Key("MD5"); writer.String(MD5.c_str());
 
     writer.EndObject();
 }
 
 void FileParser::QRCodeTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer, const QByteArray &ba)
 {
-    unsigned int bytes = 0;
+//    unsigned int bytes = 0;
+
+//    writer.StartObject();
+
+//    bytes += QRCodeHeaderPart(writer, ba);
+//    bytes += QRCodeTxnListPart(writer, ba.mid(bytes));
+
+//    // MD5
+//    writer.Key("MD5"); writer.String(md5_string(ba.data() + bytes).c_str());
+
+//    writer.EndObject();
+    unsigned int offset = 0;
+    unsigned int len = 0;
+    Util _util;
+
+    DevOpFileHeader header;
+    offset += header.parse(ba.data());
 
     writer.StartObject();
 
-    bytes += QRCodeHeaderPart(writer, ba);
-    bytes += QRCodeTxnListPart(writer, ba.mid(bytes));
+    writer.Key("GlobalMessageId"); writer.String("70");
+    header.output(writer);
 
-    // MD5
-    writer.Key("MD5"); writer.String(md5_string(ba.data() + bytes).c_str());
+    writer.Key("TxnList");
+    writer.StartArray();
+
+    unsigned int TxnType = 0;
+    unsigned int TAC = 0;
+    std::string MD5;
+    unsigned int cnt = _util.UInt(ba.data() + offset, len);
+    offset += len;
+    QRCodeTradePub traPub;
+    QRCodeTicketComm_t tc;
+    TicketSurcharge_t ts;
+    QRCodeUnnamed unnamed;
+    QRCodeExit_t exit;
+
+    for (unsigned int i = 0; i < cnt; ++i)
+    {
+        writer.StartObject();
+
+        TxnType = _util.UInt(ba.data() + offset, len);
+
+        offset += traPub.parse(ba.data() + offset);
+
+        traPub.output(writer);
+
+        switch (TxnType)
+        {
+        case 144:
+//            offset += QRCodeUpdate(writer, ba.mid(offset));
+            writer.Key("SubGlobalMessageId"); writer.String("70_144");
+            offset += tc.parse(ba.data() + offset);
+            offset += ts.parse(ba.data() + offset);
+            offset += unnamed.parse(ba.data() + offset);
+
+            tc.output(writer);
+            ts.output(writer);
+            unnamed.output(writer);
+            break;
+        case 145:
+//            offset += QRCodeEnterStation(writer, ba.mid(offset));
+            writer.Key("SubGlobalMessageId"); writer.String("70_145");
+            offset += tc.parse(ba.data() + offset);
+            offset += unnamed.parse(ba.data() + offset);
+
+            tc.output(writer);
+            unnamed.output(writer);
+            break;
+        case 146:
+//            offset += QRCodeExitStation(writer, ba.mid(offset));
+            writer.Key("SubGlobalMessageId"); writer.String("70_146");
+            offset += tc.parse(ba.data() + offset);
+            offset += exit.parse(ba.data() + offset);
+
+            tc.output(writer);
+            exit.output(writer);
+            break;
+        default:
+            break;
+        }
+
+        TAC = _util.UInt(ba.data() + offset, len);
+        offset += len;
+        writer.Key("TAC"); writer.Uint(TAC);
+
+        writer.EndObject();
+    }
+
+    writer.EndArray();
+
+    MD5 = _util.HEX(ba.data() + offset, len);
+    offset += len;
+    writer.Key("MD5"); writer.String(MD5.c_str());
 
     writer.EndObject();
+}
+
+void FileParser::output()
+{
+//    qDebug() << infos;
+    QHash<unsigned int, QString>::iterator it = infos.begin();
+    for (; it != infos.end(); ++it)
+    {
+        qDebug() << it.key() << " - " << it.value();
+    }
 }
 
 unsigned int FileParser::YiPiaoTongHeaderPart(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer, const QByteArray &ba)
@@ -1668,6 +2105,11 @@ unsigned int FileParser::BankCardTxnListPart(rapidjson::PrettyWriter<rapidjson::
 
         TxnType = big_endian<uint32_t>(ptr + offset);
 
+        if (!infos.contains(TxnType))
+        {
+            infos.insert(TxnType, filePath);
+        }
+
         writer.Key("TxnType"); writer.Int(big_endian<uint32_t>(ptr + offset)); offset += sizeof(uint32_t);
         writer.Key("TransactionDateTimeHi"); writer.String(SecsSinceEpoch(big_endian<uint32_t>(ptr + offset)).toStdString().c_str()); offset += sizeof(uint32_t);
         writer.Key("TransactionDateTimeLo"); writer.String(SecsSinceEpoch(big_endian<uint32_t>(ptr + offset)).toStdString().c_str()); offset += sizeof(uint32_t);
@@ -1728,6 +2170,11 @@ unsigned int FileParser::BankCardUpdate(rapidjson::PrettyWriter<rapidjson::Strin
             offset += 1;
             len = 0x0c;
         }
+        else if (0x0c == big_endian<uint32_t>(ptr + offset + 2))
+        {
+            offset += 2;
+            len = 0x0c;
+        }
     }
     offset += sizeof(uint32_t);
     writer.Key("PosNo"); writer.String(disp_string(ptr + offset, len).c_str()); offset += len;
@@ -1771,12 +2218,21 @@ unsigned int FileParser::BankCardEnterStation(rapidjson::PrettyWriter<rapidjson:
             offset += 1;
             len = 0x0c;
         }
+        else if (0x0c == big_endian<uint32_t>(ptr + offset + 2))
+        {
+            offset += 2;
+            len = 0x0c;
+        }
     }
     offset += sizeof(uint32_t);
     writer.Key("PosNo"); writer.String(disp_string(ptr + offset, len).c_str()); offset += len;
     writer.Key("TerminNo"); writer.Uint(big_endian<uint32_t>(ptr + offset)); offset += sizeof(uint32_t);
     writer.Key("PreAuthValue"); writer.Int(big_endian<uint32_t>(ptr + offset)); offset += sizeof(uint32_t);
     len = big_endian<uint32_t>(ptr + offset); offset += sizeof(uint32_t);
+    if (len > 100)
+    {
+        return offset;
+    }
     writer.Key("AuthCode"); writer.String(disp_string(ptr + offset, len).c_str()); offset += len; // +2;
     writer.Key("ReserveOne"); writer.Uint(big_endian<uint32_t>(ptr + offset)); offset += sizeof(uint32_t) + 1;
     writer.Key("ReserveTwo"); writer.Uint(big_endian<uint32_t>(ptr + offset)); offset += sizeof(uint32_t) + 1;
@@ -1803,6 +2259,11 @@ unsigned int FileParser::BankCardExitStation(rapidjson::PrettyWriter<rapidjson::
         if (0x0c == big_endian<uint32_t>(ptr + offset + 1))
         {
             offset += 1;
+            len = 0x0c;
+        }
+        else if (0x0c == big_endian<uint32_t>(ptr + offset + 2))
+        {
+            offset += 2;
             len = 0x0c;
         }
     }
@@ -1882,6 +2343,11 @@ unsigned int FileParser::QRCodeTxnListPart(rapidjson::PrettyWriter<rapidjson::St
         writer.StartObject();
 
         TxnType = big_endian<uint32_t>(ptr + offset);
+
+        if (!infos.contains(TxnType))
+        {
+            infos.insert(TxnType, filePath);
+        }
 
         writer.Key("TxnType"); writer.Int(big_endian<uint32_t>(ptr + offset)); offset += sizeof(uint32_t);
         writer.Key("TransactionDateTimeHi"); writer.String(SecsSinceEpoch(big_endian<uint32_t>(ptr + offset)).toStdString().c_str()); offset += sizeof(uint32_t);

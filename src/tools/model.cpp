@@ -440,8 +440,8 @@ void CPUCardAddValue_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>&
     writer.Key(VAR_NAME(NewRemainingValue)); writer.Int(this->NewRemainingValue);
     bcp.output(writer);
     writer.Key(VAR_NAME(LastAddTransactionValue)); writer.Int(this->LastAddTransactionValue);
-    writer.Key(VAR_NAME(LastAddValueTimeHi)); writer.String(this->ValidDateBeforeAddValue.c_str());
-    writer.Key(VAR_NAME(LastAddValueTimeLo)); writer.String(this->ValidDateAfterAddValue.c_str());
+    writer.Key(VAR_NAME(LastAddValueTimeHi)); writer.String(this->LastAddValueTimeHi.c_str());
+    writer.Key(VAR_NAME(LastAddValueTimeLo)); writer.String(this->LastAddValueTimeLo.c_str());
     writer.Key(VAR_NAME(LastAddValueUDSN)); writer.Uint(LastAddValueUDSN);
     writer.Key(VAR_NAME(LastAddValueSAMID)); writer.String(this->LastAddValueSAMID.c_str());
     writer.Key(VAR_NAME(LastAddValueDeviceID)); writer.String(this->LastAddValueDeviceID.c_str());
@@ -699,7 +699,7 @@ unsigned int TicketExit_t::parse(const char* data)
 
     Util _util;
 
-    EntryDeviceID = _util.UInt(data + offset, len); offset += len;
+    EntryDeviceID = _util.UIntX8(data + offset, len); offset += len;
     EntryTimeHi = _util.IntSecondTo19700101(data + offset, len); offset += len;
     EntryTimeLo = _util.IntSecondTo19700101(data + offset, len); offset += len;
     TransStatusBeforeTrans = _util.Byte(data + offset, len); offset += len;
@@ -718,7 +718,7 @@ unsigned int TicketExit_t::parse(const char* data)
 
 void TicketExit_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
 {
-    writer.Key(VAR_NAME(EntryDeviceID)); writer.Uint(this->EntryDeviceID);
+    writer.Key(VAR_NAME(EntryDeviceID)); writer.String(this->EntryDeviceID.c_str());
     writer.Key(VAR_NAME(EntryTimeHi)); writer.String(this->EntryTimeHi.c_str());
     writer.Key(VAR_NAME(EntryTimeLo)); writer.String(this->EntryTimeLo.c_str());
     writer.Key(VAR_NAME(TransStatusBeforeTrans)); writer.Uint(this->TransStatusBeforeTrans);
@@ -822,4 +822,550 @@ void CPUCardSpecialPurseSale_t::output(rapidjson::PrettyWriter<rapidjson::String
     writer.Key(VAR_NAME(SaleSectionID)); writer.Uint(this->SaleSectionID);
     writer.Key(VAR_NAME(SaleOperatorID)); writer.String(this->SaleOperatorID.c_str());
     writer.Key(VAR_NAME(SaleBOMShiftID)); writer.String(this->SaleBOMShiftID.c_str());
+}
+
+unsigned int YiKaTongTradePub::parse(const char* data)
+{
+    if (nullptr == data) return 0;
+
+    unsigned int len = 0;
+    unsigned int offset = 0;
+
+    Util _util;
+
+    TxnType = _util.UShort(data + offset, len); offset += len;
+    TransactionDateTimeHi = _util.IntSecondTo19700101(data + offset, len); offset += len;
+    TransactionDateTimeLo = _util.IntSecondTo19700101(data + offset, len); offset += len;
+    LineID = _util.ByteX2(data + offset, len); offset += len;
+    StationID = _util.UShortX4(data + offset, len); offset += len;
+    DeviceID = _util.UIntX8(data + offset, len); offset += len;
+    ModeCode = _util.Byte(data + offset, len); offset += len;
+    UDSN = _util.UInt(data + offset, len); offset += len;
+    ePurseTransactionType = _util.UShort(data + offset, len); offset += len;
+    CityCode_TransLocation = _util.UShort(data + offset, len); offset += len;
+    CityCode_BelongLocation = _util.UShort(data + offset, len); offset += len;
+    TACSAMID = _util.UTF8String(data + offset, len); offset += len;
+    TerminateNumber = _util.TerminateNumber(data + offset, len); offset += len;
+    SAMSN = _util.UInt(data + offset, len); offset += len;
+    SAK = _util.Byte(data + offset, len); offset += len;
+    MainCardType = _util.Byte(data + offset, len); offset += len;
+    SubCardType = _util.Byte(data + offset, len); offset += len;
+    CardVer = _util.Byte(data + offset, len); offset += len;
+    RechargeSN = _util.UInt(data + offset, len); offset += len;
+    AddValueDate = _util.UShortDayTo19700101(data + offset, len); offset += len;
+    SaleDate = _util.UShortDayTo19700101(data + offset, len); offset += len;
+    SystemTraceSN = _util.UInt(data + offset, len); offset += len;
+    TransactionType = _util.UInt(data + offset, len); offset += len;
+
+    return offset;
+}
+
+void YiKaTongTradePub::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+    writer.Key(VAR_NAME(TxnType)); writer.Uint(this->TxnType);
+    writer.Key(VAR_NAME(TransactionDateTimeHi)); writer.String(this->TransactionDateTimeHi.c_str());
+    writer.Key(VAR_NAME(TransactionDateTimeLo)); writer.String(this->TransactionDateTimeLo.c_str());
+    writer.Key(VAR_NAME(LineID)); writer.String(this->LineID.c_str());
+    writer.Key(VAR_NAME(StationID)); writer.String(this->StationID.c_str());
+    writer.Key(VAR_NAME(DeviceID)); writer.String(this->DeviceID.c_str());
+    writer.Key(VAR_NAME(ModeCode)); writer.Int(this->ModeCode);
+    writer.Key(VAR_NAME(UDSN)); writer.Uint(this->UDSN);
+    writer.Key(VAR_NAME(ePurseTransactionType)); writer.Uint(this->ePurseTransactionType);
+    writer.Key(VAR_NAME(CityCode_TransLocation)); writer.Uint(this->CityCode_TransLocation);
+    writer.Key(VAR_NAME(CityCode_BelongLocation)); writer.Uint(this->CityCode_BelongLocation);
+    writer.Key(VAR_NAME(TACSAMID)); writer.String(this->TACSAMID.c_str());
+    writer.Key(VAR_NAME(TerminateNumber)); writer.String(this->TerminateNumber.c_str());
+    writer.Key(VAR_NAME(SAMSN)); writer.Uint(this->SAMSN);
+    writer.Key(VAR_NAME(SAK)); writer.Uint(this->SAK);
+    writer.Key(VAR_NAME(MainCardType)); writer.Uint(this->MainCardType);
+    writer.Key(VAR_NAME(SubCardType)); writer.Uint(this->SubCardType);
+    writer.Key(VAR_NAME(CardVer)); writer.Uint(this->CardVer);
+    writer.Key(VAR_NAME(RechargeSN)); writer.Uint(this->RechargeSN);
+    writer.Key(VAR_NAME(AddValueDate)); writer.String(this->AddValueDate.c_str());
+    writer.Key(VAR_NAME(SaleDate)); writer.String(this->SaleDate.c_str());
+    writer.Key(VAR_NAME(SystemTraceSN)); writer.Uint(this->SystemTraceSN);
+    writer.Key(VAR_NAME(TransactionType)); writer.Uint(this->TransactionType);
+}
+
+unsigned int YKTTicketPassengerComm_t::parse(const char* data)
+{
+    if (nullptr == data) return 0;
+
+    unsigned int len = 0;
+    unsigned int offset = 0;
+
+    Util _util;
+
+    PassengerCNName = _util.UTF8String(data + offset, len); offset += len;
+    IdentificationType = _util.Byte(data + offset, len); offset += len;
+    IdentificationCode = _util.UTF8String(data + offset, len); offset += len;
+    TelephoneCode = _util.UTF8String(data + offset, len); offset += len;
+    Address = _util.UTF8String(data + offset, len); offset += len;
+    CompanyName = _util.UTF8String(data + offset, len); offset += len;
+
+    return offset;
+}
+
+void YKTTicketPassengerComm_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+    writer.Key(VAR_NAME(PassengerCNName)); writer.String(this->PassengerCNName.c_str());
+    writer.Key(VAR_NAME(IdentificationType)); writer.Uint(this->IdentificationType);
+    writer.Key(VAR_NAME(IdentificationCode)); writer.String(this->IdentificationCode.c_str());
+    writer.Key(VAR_NAME(TelephoneCode)); writer.String(this->TelephoneCode.c_str());
+    writer.Key(VAR_NAME(Address)); writer.String(this->Address.c_str());
+    writer.Key(VAR_NAME(CompanyName)); writer.String(this->CompanyName.c_str());
+}
+
+unsigned int YKTTicketExit_t::parse(const char* data)
+{
+    if (nullptr == data) return 0;
+
+    unsigned int len = 0;
+    unsigned int offset = 0;
+
+    Util _util;
+
+    EntryDeviceID = _util.UIntX8(data + offset, len); offset += len;
+    EntryTimeHi = _util.IntSecondTo19700101(data + offset, len); offset += len;
+    EntryTimeLo = _util.IntSecondTo19700101(data + offset, len); offset += len;
+    TransStatusBeforeTrans = _util.Byte(data + offset, len); offset += len;
+    TransStatusAfterTrans = _util.Byte(data + offset, len); offset += len;
+    RemainingValueBeforeTrans = _util.Int(data + offset, len); offset += len;
+    RemainingValueAfterTrans = _util.Int(data + offset, len); offset += len;
+    TransactionValue = _util.Int(data + offset, len); offset += len;
+    OriginalValue = _util.Int(data + offset, len); offset += len;
+
+    return offset;
+}
+
+void YKTTicketExit_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+    writer.Key(VAR_NAME(EntryDeviceID)); writer.String(this->EntryDeviceID.c_str());
+    writer.Key(VAR_NAME(EntryTimeHi)); writer.String(this->EntryTimeHi.c_str());
+    writer.Key(VAR_NAME(EntryTimeLo)); writer.String(this->EntryTimeLo.c_str());
+    writer.Key(VAR_NAME(TransStatusBeforeTrans)); writer.Uint(this->TransStatusBeforeTrans);
+    writer.Key(VAR_NAME(TransStatusAfterTrans)); writer.Uint(this->TransStatusAfterTrans);
+    writer.Key(VAR_NAME(RemainingValueBeforeTrans)); writer.Int(this->RemainingValueBeforeTrans);
+    writer.Key(VAR_NAME(RemainingValueAfterTrans)); writer.Int(this->RemainingValueAfterTrans);
+    writer.Key(VAR_NAME(TransactionValue)); writer.Int(this->TransactionValue);
+    writer.Key(VAR_NAME(OriginalValue)); writer.Int(this->OriginalValue);
+}
+
+unsigned int YKTMetroStart_t::parse(const char* data)
+{
+    if (nullptr == data) return 0;
+
+    unsigned int len = 0;
+    unsigned int offset = 0;
+
+    Util _util;
+
+    SurchargeArea = _util.Byte(data + offset, len); offset += len;
+    OperatorID = _util.UIntX6(data + offset, len); offset += len;
+    BOMShiftID = _util.UIntX8(data + offset, len); offset += len;
+
+    return offset;
+}
+
+void YKTMetroStart_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+    writer.Key(VAR_NAME(SurchargeArea)); writer.Uint(this->SurchargeArea);
+    writer.Key(VAR_NAME(OperatorID)); writer.String(this->OperatorID.c_str());
+    writer.Key(VAR_NAME(BOMShiftID)); writer.String(this->BOMShiftID.c_str());
+}
+
+unsigned int CellPhoneTradePub::parse(const char* data)
+{
+    if (nullptr == data) return 0;
+
+    unsigned int len = 0;
+    unsigned int offset = 0;
+
+    Util _util;
+
+    TxnType = _util.UShort(data + offset, len); offset += len;
+    TransactionDateTimeHi = _util.IntSecondTo19700101(data + offset, len); offset += len;
+    TransactionDateTimeLo = _util.IntSecondTo19700101(data + offset, len); offset += len;
+    LineID = _util.ByteX2(data + offset, len); offset += len;
+    StationID = _util.UShortX4(data + offset, len); offset += len;
+    DeviceID = _util.UIntX8(data + offset, len); offset += len;
+    TACSAMID = _util.UInt(data + offset, len); offset += len;
+    ModeCode = _util.Byte(data + offset, len); offset += len;
+    UDSN = _util.UInt(data + offset, len); offset += len;
+    TransactionType = _util.UInt(data + offset, len); offset += len;
+
+    return offset;
+}
+
+void CellPhoneTradePub::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+    writer.Key(VAR_NAME(TxnType)); writer.Uint(this->TxnType);
+    writer.Key(VAR_NAME(TransactionDateTimeHi)); writer.String(this->TransactionDateTimeHi.c_str());
+    writer.Key(VAR_NAME(TransactionDateTimeLo)); writer.String(this->TransactionDateTimeLo.c_str());
+    writer.Key(VAR_NAME(LineID)); writer.String(this->LineID.c_str());
+    writer.Key(VAR_NAME(StationID)); writer.String(this->StationID.c_str());
+    writer.Key(VAR_NAME(DeviceID)); writer.String(this->DeviceID.c_str());
+    writer.Key(VAR_NAME(TACSAMID)); writer.Uint(this->TACSAMID);
+    writer.Key(VAR_NAME(ModeCode)); writer.Int(this->ModeCode);
+    writer.Key(VAR_NAME(UDSN)); writer.Uint(this->UDSN);
+    writer.Key(VAR_NAME(TransactionType)); writer.Uint(this->TransactionType);
+}
+
+unsigned int MobileDeduction_t::parse(const char* data)
+{
+    if (nullptr == data) return 0;
+
+    unsigned int len = 0;
+    unsigned int offset = 0;
+
+    Util _util;
+
+    TicketFamilyType = _util.UShort(data + offset, len); offset += len;
+    TicketType = _util.Byte(data + offset, len); offset += len;
+    TestFlag = _util.Byte(data + offset, len); offset += len;
+    IssuerCode = _util.UInt(data + offset, len); offset += len;
+    IssuerSN = _util.UInt(data + offset, len); offset += len;
+    CityCode = _util.UShort(data + offset, len); offset += len;
+    SIMType = _util.Byte(data + offset, len); offset += len;
+    SIMStatus = _util.Byte(data + offset, len); offset += len;
+    SIMID = _util.UTF8String(data + offset, len); offset += len;
+    MobileNo = _util.UTF8String(data + offset, len); offset += len;
+    SIMTransSN = _util.UInt(data + offset, len); offset += len;
+    TransactionValue = _util.Int(data + offset, len); offset += len;
+    SIMStatusAfterTrans = _util.Byte(data + offset, len); offset += len;
+    RemainingValueAfterTrans = _util.Int(data + offset, len); offset += len;
+    OperatorID = _util.UIntX6(data + offset, len); offset += len;
+    BOMShiftID = _util.UIntX8(data + offset, len); offset += len;
+
+    return offset;
+}
+
+void MobileDeduction_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+    writer.Key(VAR_NAME(TicketFamilyType)); writer.Uint(this->TicketFamilyType);
+    writer.Key(VAR_NAME(TicketType)); writer.Uint(this->TicketType);
+    writer.Key(VAR_NAME(TestFlag)); writer.Uint(this->TestFlag);
+    writer.Key(VAR_NAME(IssuerCode)); writer.Uint(this->IssuerCode);
+    writer.Key(VAR_NAME(IssuerSN)); writer.Uint(this->IssuerSN);
+    writer.Key(VAR_NAME(CityCode)); writer.Uint(this->CityCode);
+    writer.Key(VAR_NAME(SIMType)); writer.Uint(this->SIMType);
+    writer.Key(VAR_NAME(SIMStatus)); writer.Uint(this->SIMStatus);
+    writer.Key(VAR_NAME(SIMID)); writer.String(this->SIMID.c_str());
+    writer.Key(VAR_NAME(MobileNo)); writer.String(this->MobileNo.c_str());
+    writer.Key(VAR_NAME(SIMTransSN)); writer.Uint(this->SIMTransSN);
+    writer.Key(VAR_NAME(TransactionValue)); writer.Int(this->TransactionValue);
+    writer.Key(VAR_NAME(SIMStatusAfterTrans)); writer.Uint(this->SIMStatusAfterTrans);
+    writer.Key(VAR_NAME(RemainingValueAfterTrans)); writer.Int(this->RemainingValueAfterTrans);
+    writer.Key(VAR_NAME(OperatorID)); writer.String(this->OperatorID.c_str());
+    writer.Key(VAR_NAME(BOMShiftID)); writer.String(this->BOMShiftID.c_str());
+}
+
+unsigned int BankCardTradePub::parse(const char* data)
+{
+    if (nullptr == data) return 0;
+
+    unsigned int len = 0;
+    unsigned int offset = 0;
+
+    Util _util;
+
+    TxnType = _util.UShort(data + offset, len); offset += len;
+    TransactionDateTimeHi = _util.IntSecondTo19700101(data + offset, len); offset += len;
+    TransactionDateTimeLo = _util.IntSecondTo19700101(data + offset, len); offset += len;
+    LineID = _util.ByteX2(data + offset, len); offset += len;
+    StationID = _util.UShortX4(data + offset, len); offset += len;
+    DeviceID = _util.UIntX8(data + offset, len); offset += len;
+    TACSAMID = _util.UInt(data + offset, len); offset += len;
+    ModeCode = _util.Byte(data + offset, len); offset += len;
+    UDSN = _util.UInt(data + offset, len); offset += len;
+    TransactionType = _util.UInt(data + offset, len); offset += len;
+
+    return offset;
+}
+
+void BankCardTradePub::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+    writer.Key(VAR_NAME(TxnType)); writer.Uint(this->TxnType);
+    writer.Key(VAR_NAME(TransactionDateTimeHi)); writer.String(this->TransactionDateTimeHi.c_str());
+    writer.Key(VAR_NAME(TransactionDateTimeLo)); writer.String(this->TransactionDateTimeLo.c_str());
+    writer.Key(VAR_NAME(LineID)); writer.String(this->LineID.c_str());
+    writer.Key(VAR_NAME(StationID)); writer.String(this->StationID.c_str());
+    writer.Key(VAR_NAME(DeviceID)); writer.String(this->DeviceID.c_str());
+    writer.Key(VAR_NAME(TACSAMID)); writer.Uint(this->TACSAMID);
+    writer.Key(VAR_NAME(ModeCode)); writer.Int(this->ModeCode);
+    writer.Key(VAR_NAME(UDSN)); writer.Uint(this->UDSN);
+    writer.Key(VAR_NAME(TransactionType)); writer.Uint(this->TransactionType);
+}
+
+unsigned int BankCardTicketComm_t::parse(const char* data)
+{
+    if (nullptr == data) return 0;
+
+    unsigned int len = 0;
+    unsigned int offset = 0;
+
+    Util _util;
+
+    TicketFamilyType = _util.UShort(data + offset, len); offset += len;
+    TicketType = _util.Byte(data + offset, len); offset += len;
+    TicketCatalogID = _util.Byte(data + offset, len); offset += len;
+    PrimaryAccount = _util.UTF8String(data + offset, len); offset += len + 1;
+    BankCode = _util.BankCode(data + offset, len); offset += len;
+    PosNo = _util.PosNo(data + offset, len); offset += len;
+    TerminNo = _util.UInt(data + offset, len); offset += len;
+
+    return offset;
+}
+
+void BankCardTicketComm_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+    writer.Key(VAR_NAME(TicketFamilyType)); writer.Uint(this->TicketFamilyType);
+    writer.Key(VAR_NAME(TicketType)); writer.Uint(this->TicketType);
+    writer.Key(VAR_NAME(TicketCatalogID)); writer.Uint(this->TicketCatalogID);
+    writer.Key(VAR_NAME(PrimaryAccount)); writer.String(this->PrimaryAccount.c_str());
+    writer.Key(VAR_NAME(BankCode)); writer.String(this->BankCode.c_str());
+    writer.Key(VAR_NAME(PosNo)); writer.String(this->PosNo.c_str());
+    writer.Key(VAR_NAME(TerminNo)); writer.Uint(this->TerminNo);
+}
+
+unsigned int BankCardSurcharge_t::parse(const char* data)
+{
+    if (nullptr == data) return 0;
+
+    unsigned int len = 0;
+    unsigned int offset = 0;
+
+    Util _util;
+
+    PreAuthValue = _util.Int(data + offset, len); offset += len;
+    AuthCode = _util.UTF8String(data + offset, len); offset += len;
+    SurchargeCode = _util.Byte(data + offset, len); offset += len;
+    Paymentmeans = _util.Byte(data + offset, len); offset += len;
+    SaleDeviceID = _util.UIntX8(data + offset, len); offset += len;
+    TicketSaleValue = _util.Int(data + offset, len); offset += len;
+    SurchargeArea = _util.Byte(data + offset, len); offset += len;
+    SurchargeValue = _util.Int(data + offset, len); offset += len;
+    DisSurchargeValue = _util.Int(data + offset, len); offset += len;
+    OperatorID = _util.UIntX6(data + offset, len); offset += len;
+    BOMShiftID = _util.UIntX8(data + offset, len); offset += len;
+    ReserveOne = _util.UInt(data + offset, len); offset += len;
+    ReserveTwo = _util.UInt(data + offset, len); offset += len;
+
+    return offset;
+}
+
+void BankCardSurcharge_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+    writer.Key(VAR_NAME(PreAuthValue)); writer.Int(this->PreAuthValue);
+    writer.Key(VAR_NAME(AuthCode)); writer.String(this->AuthCode.c_str());
+    writer.Key(VAR_NAME(SurchargeCode)); writer.Uint(this->SurchargeCode);
+    writer.Key(VAR_NAME(Paymentmeans)); writer.Uint(this->Paymentmeans);
+    writer.Key(VAR_NAME(SaleDeviceID)); writer.String(this->SaleDeviceID.c_str());
+    writer.Key(VAR_NAME(TicketSaleValue)); writer.Int(this->TicketSaleValue);
+    writer.Key(VAR_NAME(SurchargeArea)); writer.Uint(this->SurchargeArea);
+    writer.Key(VAR_NAME(SurchargeValue)); writer.Int(this->SurchargeValue);
+    writer.Key(VAR_NAME(DisSurchargeValue)); writer.Int(this->SurchargeValue);
+    writer.Key(VAR_NAME(OperatorID)); writer.String(this->OperatorID.c_str());
+    writer.Key(VAR_NAME(BOMShiftID)); writer.String(this->BOMShiftID.c_str());
+    writer.Key(VAR_NAME(ReserveOne)); writer.Uint(this->ReserveOne);
+    writer.Key(VAR_NAME(ReserveTwo)); writer.Uint(this->ReserveTwo);
+}
+
+unsigned int BankCardEntry_t::parse(const char* data)
+{
+    if (nullptr == data) return 0;
+
+    unsigned int len = 0;
+    unsigned int offset = 0;
+
+    Util _util;
+
+    PreAuthValue = _util.Int(data + offset, len); offset += len;
+    AuthCode = _util.UTF8String(data + offset, len); offset += len;
+    ReserveOne = _util.UInt(data + offset, len); offset += len;
+    ReserveTwo = _util.UInt(data + offset, len); offset += len;
+
+    return offset;
+}
+
+void BankCardEntry_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+    writer.Key(VAR_NAME(PreAuthValue)); writer.Int(this->PreAuthValue);
+    writer.Key(VAR_NAME(AuthCode)); writer.String(this->AuthCode.c_str());
+    writer.Key(VAR_NAME(ReserveOne)); writer.Uint(this->ReserveOne);
+    writer.Key(VAR_NAME(ReserveTwo)); writer.Uint(this->ReserveTwo);
+}
+
+unsigned int BankCardExit_t::parse(const char* data)
+{
+    if (nullptr == data) return 0;
+
+    unsigned int len = 0;
+    unsigned int offset = 0;
+
+    Util _util;
+
+    TransValue = _util.Int(data + offset, len); offset += len;
+    DisTransValue = _util.Int(data + offset, len); offset += len;
+    StartDevice = _util.UIntX8(data + offset, len); offset += len;
+    StartTimeHi = _util.IntSecondTo19700101(data + offset, len); offset += len;
+    StartTimeLo = _util.IntSecondTo19700101(data + offset, len); offset += len;
+    ReserveOne = _util.UInt(data + offset, len); offset += len;
+    ReserveTwo = _util.UInt(data + offset, len); offset += len;
+
+    return offset;
+}
+
+void BankCardExit_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+    writer.Key(VAR_NAME(TransValue)); writer.Int(this->TransValue);
+    writer.Key(VAR_NAME(DisTransValue)); writer.Int(this->DisTransValue);
+    writer.Key(VAR_NAME(StartDevice)); writer.String(this->StartDevice.c_str());
+    writer.Key(VAR_NAME(StartTimeHi)); writer.String(this->StartTimeHi.c_str());
+    writer.Key(VAR_NAME(StartTimeLo)); writer.String(this->StartTimeLo.c_str());
+    writer.Key(VAR_NAME(ReserveOne)); writer.Uint(this->ReserveOne);
+    writer.Key(VAR_NAME(ReserveTwo)); writer.Uint(this->ReserveTwo);
+}
+
+unsigned int BankCardDeduction_t::parse(const char* data)
+{
+    if (nullptr == data) return 0;
+
+    unsigned int len = 0;
+    unsigned int offset = 0;
+
+    Util _util;
+
+    TestFlag = _util.Byte(data + offset, len); offset += len;
+    offset += bcp.parse(data + offset);
+    TransactionValue = _util.Int(data + offset, len); offset += len;
+    RemainingValueAfterTrans = _util.Int(data + offset, len); offset += len;
+    OperatorID = _util.UIntX6(data + offset, len); offset += len;
+    BOMShiftID = _util.UIntX8(data + offset, len); offset += len;
+
+    return offset;
+}
+
+void BankCardDeduction_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+    writer.Key(VAR_NAME(TestFlag)); writer.Uint(TestFlag);
+    bcp.output(writer);
+    writer.Key(VAR_NAME(TransactionValue)); writer.Int(this->TransactionValue);
+    writer.Key(VAR_NAME(RemainingValueAfterTrans)); writer.Int(this->RemainingValueAfterTrans);
+    writer.Key(VAR_NAME(OperatorID)); writer.String(this->OperatorID.c_str());
+    writer.Key(VAR_NAME(BOMShiftID)); writer.String(this->BOMShiftID.c_str());
+}
+
+unsigned int QRCodeTradePub::parse(const char* data)
+{
+    if (nullptr == data) return 0;
+
+    unsigned int len = 0;
+    unsigned int offset = 0;
+
+    Util _util;
+
+    TxnType = _util.UShort(data + offset, len); offset += len;
+    TransactionDateTimeHi = _util.IntSecondTo19700101(data + offset, len); offset += len;
+    TransactionDateTimeLo = _util.IntSecondTo19700101(data + offset, len); offset += len;
+    LineID = _util.ByteX2(data + offset, len); offset += len;
+    StationID = _util.UShortX4(data + offset, len); offset += len;
+    DeviceID = _util.UIntX8(data + offset, len); offset += len;
+    TACSAMID = _util.UInt(data + offset, len); offset += len;
+    ModeCode = _util.Byte(data + offset, len); offset += len;
+    UDSN = _util.UInt(data + offset, len); offset += len;
+    TransactionType = _util.UInt(data + offset, len); offset += len;
+
+    return offset;
+}
+
+void QRCodeTradePub::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+    writer.Key(VAR_NAME(TxnType)); writer.Uint(this->TxnType);
+    writer.Key(VAR_NAME(TransactionDateTimeHi)); writer.String(this->TransactionDateTimeHi.c_str());
+    writer.Key(VAR_NAME(TransactionDateTimeLo)); writer.String(this->TransactionDateTimeLo.c_str());
+    writer.Key(VAR_NAME(LineID)); writer.String(this->LineID.c_str());
+    writer.Key(VAR_NAME(StationID)); writer.String(this->StationID.c_str());
+    writer.Key(VAR_NAME(DeviceID)); writer.String(this->DeviceID.c_str());
+    writer.Key(VAR_NAME(TACSAMID)); writer.Uint(this->TACSAMID);
+    writer.Key(VAR_NAME(ModeCode)); writer.Int(this->ModeCode);
+    writer.Key(VAR_NAME(UDSN)); writer.Uint(this->UDSN);
+    writer.Key(VAR_NAME(TransactionType)); writer.Uint(this->TransactionType);
+}
+
+unsigned int QRCodeTicketComm_t::parse(const char* data)
+{
+    if (nullptr == data) return 0;
+
+    unsigned int len = 0;
+    unsigned int offset = 0;
+
+    Util _util;
+
+    TicketFamilyType = _util.UShort(data + offset, len); offset += len;
+    TicketType = _util.Byte(data + offset, len); offset += len;
+    TicketCatalogID = _util.UShort(data + offset, len); offset += len;
+    Uid = _util.UTF8String(data + offset, len); offset += len;
+    QRCodeID = _util.UTF8String(data + offset, len); offset += len;
+
+    return offset;
+}
+
+void QRCodeTicketComm_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+    writer.Key(VAR_NAME(TicketFamilyType)); writer.Uint(this->TicketFamilyType);
+    writer.Key(VAR_NAME(TicketType)); writer.Uint(this->TicketType);
+    writer.Key(VAR_NAME(TicketCatalogID)); writer.Uint(this->TicketCatalogID);
+    writer.Key(VAR_NAME(Uid)); writer.String(this->Uid.c_str());
+    writer.Key(VAR_NAME(QRCodeID)); writer.String(this->QRCodeID.c_str());
+}
+
+unsigned int QRCodeUnnamed::parse(const char* data)
+{
+    if (nullptr == data) return 0;
+
+    unsigned int len = 0;
+    unsigned int offset = 0;
+
+    Util _util;
+
+    ReserveOne = _util.UInt(data + offset, len); offset += len;
+    ReserveTwo = _util.UInt(data + offset, len); offset += len;
+
+    return offset;
+}
+
+void QRCodeUnnamed::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+    writer.Key(VAR_NAME(ReserveOne)); writer.Uint(this->ReserveOne);
+    writer.Key(VAR_NAME(ReserveTwo)); writer.Uint(this->ReserveTwo);
+}
+
+unsigned int QRCodeExit_t::parse(const char* data)
+{
+    if (nullptr == data) return 0;
+
+    unsigned int len = 0;
+    unsigned int offset = 0;
+
+    Util _util;
+
+    TransValue = _util.Int(data + offset, len); offset += len;
+    StartDevice = _util.UIntX8(data + offset, len); offset += len;
+    StartTimeHi = _util.IntSecondTo19700101(data + offset, len); offset += len;
+    StartTimeLo = _util.IntSecondTo19700101(data + offset, len); offset += len;
+    ReserveOne = _util.UInt(data + offset, len); offset += len;
+    ReserveTwo = _util.UInt(data + offset, len); offset += len;
+
+    return offset;
+}
+
+void QRCodeExit_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
+{
+    writer.Key(VAR_NAME(TransValue)); writer.Int(this->TransValue);
+    writer.Key(VAR_NAME(StartDevice)); writer.String(this->StartDevice.c_str());
+    writer.Key(VAR_NAME(StartTimeHi)); writer.String(this->StartTimeHi.c_str());
+    writer.Key(VAR_NAME(StartTimeLo)); writer.String(this->StartTimeLo.c_str());
+    writer.Key(VAR_NAME(ReserveOne)); writer.Uint(this->ReserveOne);
+    writer.Key(VAR_NAME(ReserveTwo)); writer.Uint(this->ReserveTwo);
 }

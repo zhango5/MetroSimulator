@@ -12,7 +12,9 @@
 #include <QtEndian>
 #include <QSettings>
 #include <QTextCodec>
+#include <QCoreApplication>
 #include <QDebug>
+#include <exception>
 
 FileParseWin::FileParseWin(QWidget *parent)
     : QWidget(parent)
@@ -145,13 +147,71 @@ void FileParseWin::saveCfgFile()
     cfg.setValue("interval", _cfg.nFetchInterval);
     cfg.endGroup();
 }
-
+//#define FOLDER_PARSE
 void FileParseWin::onFilePathClicked()
 {
+#ifdef FOLDER_PARSE
+    QString folder = "D:/20220904";
+    QDir dir(folder);
+    QStringList files = dir.entryList(QDir::Files);
+
+    for (int i = 0; i < files.size(); ++i)
+    {
+        QString name = files[i];
+
+        QFile fp(folder + "/" + name);
+        if (!fp.open(QIODevice::ReadOnly))
+        {
+            QMessageBox::warning(nullptr, "Warning", "file open failed!", QMessageBox::Ok);
+            return;
+        }
+
+        QByteArray ba = fp.readAll();
+        fp.close();
+
+        FileParser::filePath = fp.fileName();
+
+        rapidjson::StringBuffer buf;
+        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf);
+
+        switch (qFromBigEndian<uint32_t>(ba.left(4).data()))
+        {
+        case 0x01:
+            FileParser::YiPiaoTongTradeFile(writer, ba);
+            break;
+
+        case 0x02:
+            FileParser::YiKaTongTradeFile(writer, ba);
+            break;
+
+        case 0x03:
+            FileParser::PhoneTicketTradeFile(writer, ba);
+            break;
+
+        case 0x04:
+            //FileParser::BankCardTradeFile(writer, ba);
+            break;
+
+        case 0x70:
+            FileParser::QRCodeTradeFile(writer, ba);
+            break;
+        }
+
+        _result->setText(QString("%1/%2").arg(i + 1).arg(files.size()));
+
+        QCoreApplication::processEvents();
+    }
+
+    FileParser::output();
+
+    return;
+#else
     QString filePath = QFileDialog::getOpenFileName(nullptr
                                                     , QString::fromLocal8Bit("选择文件")
-                                                    , _cfg.strOpenPath
+                                                    , QStandardPaths::writableLocation(QStandardPaths::DesktopLocation)// _cfg.strOpenPath
                                                     , "*.*");
+
+//    QString filePath = "D:/20220830/UY02991202012022083022302502.000250";
 
     if (filePath.isEmpty())
     {
@@ -213,30 +273,37 @@ void FileParseWin::onFilePathClicked()
     rapidjson::StringBuffer buf;
     rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf);
 
-    switch (qFromBigEndian<uint32_t>(ba.left(4).data()))
+    try
     {
-    case 0x01:
-        FileParser::YiPiaoTongTradeFile(writer, ba);
-        break;
+        switch (qFromBigEndian<uint32_t>(ba.left(4).data()))
+        {
+        case 0x01:
+            FileParser::YiPiaoTongTradeFile(writer, ba);
+            break;
 
-    case 0x02:
-        FileParser::YiKaTongTradeFile(writer, ba);
-        break;
+        case 0x02:
+            FileParser::YiKaTongTradeFile(writer, ba);
+            break;
 
-    case 0x03:
-        FileParser::PhoneTicketTradeFile(writer, ba);
-        break;
+        case 0x03:
+            FileParser::PhoneTicketTradeFile(writer, ba);
+            break;
 
-    case 0x04:
-        FileParser::BankCardTradeFile(writer, ba);
-        break;
+        case 0x04:
+            FileParser::BankCardTradeFile(writer, ba);
+            break;
 
-    case 0x70:
-        FileParser::QRCodeTradeFile(writer, ba);
-        break;
+        case 0x70:
+            FileParser::QRCodeTradeFile(writer, ba);
+            break;
+        }
+    } catch (std::exception &e) {
+        qDebug() << "exception: " << e.what() << endl;
+        qDebug() << "exception file:" << filePath;
     }
 
     _result->setText(buf.GetString());
+#endif
 }
 
 void FileParseWin::onExportJsonClicked()
