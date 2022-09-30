@@ -39,10 +39,6 @@ public:
 
     std::string TerminateNumber(const char* data, unsigned int& len);
 
-    std::string BankCode(const char *data, unsigned int &len);
-
-    std::string PosNo(const char* data, unsigned int& len);
-
 public:
     Util();
     ~Util();

@@ -1,18 +1,6 @@
 ﻿#include "model.h"
-
-DevOpFileHeader::DevOpFileHeader()
-    : FileType(0)
-    , FileSN(0)
-    , RecordsInFile(0)
-    , FileHeaderTag(0)
-{
-
-}
-
-DevOpFileHeader::~DevOpFileHeader()
-{
-
-}
+#include "util.h"
+#include <QVariant>
 
 unsigned int DevOpFileHeader::parse(const char* data)
 {
@@ -26,7 +14,7 @@ unsigned int DevOpFileHeader::parse(const char* data)
     FileType = _util.UShort(data + offset, len); offset += len;
     FileCreationTimeHi = _util.IntSecondTo19700101(data + offset, len); offset += len;
     FileCreationTimeLo = _util.IntSecondTo19700101(data + offset, len); offset += len;
-    FileName = _util.FileName(data + offset, len); offset += len;
+    FileName = _util.UTF8String(data + offset, len); offset += len;
     FileLineID = _util.ByteX2(data + offset, len); offset += len;
     FileStationID = _util.UShortX4(data + offset, len); offset += len;
     FileDeviceID = _util.UIntX8(data + offset, len); offset += len;
@@ -51,21 +39,6 @@ void DevOpFileHeader::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& w
     writer.Key(VAR_NAME(FileSN)); writer.Uint(this->FileSN);
     writer.Key(VAR_NAME(RecordsInFile)); writer.Uint(this->RecordsInFile);
     writer.Key(VAR_NAME(FileHeaderTag)); writer.Uint(this->FileHeaderTag);
-}
-
-YiPiaoTongTradePub::YiPiaoTongTradePub()
-    : TxnType(0)
-    , TACSAMID(0)
-    , ModeCode(0)
-    , UDSN(0)
-    , TransactionType(0)
-{
-
-}
-
-YiPiaoTongTradePub::~YiPiaoTongTradePub()
-{
-
 }
 
 unsigned int YiPiaoTongTradePub::parse(const char* data)
@@ -105,14 +78,18 @@ void YiPiaoTongTradePub::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>
     writer.Key(VAR_NAME(TransactionType)); writer.Uint(this->TransactionType);
 }
 
-TicketComm_t::TicketComm_t()
+void YiPiaoTongTradePub::sqltransaction(QSqlQuery& query)
 {
-
-}
-
-TicketComm_t::~TicketComm_t()
-{
-
+    query.bindValue(":txn_type", QVariant(TxnType));
+    query.bindValue(":transaction_date_time_hi", QVariant(TransactionDateTimeHi.c_str()));
+    query.bindValue(":transaction_data_time_lo", QVariant(TransactionDateTimeLo.c_str()));
+    query.bindValue(":line_id", QVariant(LineID.c_str()));
+    query.bindValue(":station_id", QVariant(StationID.c_str()));
+    query.bindValue(":device_id", QVariant(DeviceID.c_str()));
+    query.bindValue(":tac_sam_id", QVariant(TACSAMID));
+    query.bindValue(":mode_code", QVariant(ModeCode));
+    query.bindValue(":udsn", QVariant(UDSN));
+    query.bindValue(":transaction_type", QVariant(TransactionType));
 }
 
 unsigned int TicketComm_t::parse(const char* data)
@@ -150,14 +127,17 @@ void TicketComm_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writ
     writer.Key(VAR_NAME(TicketRemainingValue)); writer.Int(this->TicketRemainingValue);
 }
 
-TicketEntry_t::TicketEntry_t()
+void TicketComm_t::sqltransaction(QSqlQuery& query)
 {
-
-}
-
-TicketEntry_t::~TicketEntry_t()
-{
-
+    query.bindValue(":ticket_family_type", QVariant(TicketFamilyType));
+    query.bindValue(":ticket_type", QVariant(TicketType));
+    query.bindValue(":ticket_catalog_id", QVariant(TicketCatalogID));
+    query.bindValue(":tiket_phy_id", QVariant(TicketPhyID.c_str()));
+    query.bindValue(":ticket_logic_id", QVariant(TicketLogicID.c_str()));
+    query.bindValue(":ticket_status", QVariant(TicketStatus));
+    query.bindValue(":test_flag", QVariant(TestFlag));
+    query.bindValue(":ticket_sn", QVariant(TicketSN));
+    query.bindValue(":ticket_remaining_value", QVariant(TicketRemainingValue));
 }
 
 unsigned int TicketEntry_t::parse(const char* data)
@@ -183,6 +163,13 @@ void TicketEntry_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wri
     writer.Key(VAR_NAME(RemainingValue)); writer.Int(this->RemainingValue);
 }
 
+void TicketEntry_t::sqltransaction(QSqlQuery& query)
+{
+    query.bindValue(":trans_status_before_trans", QVariant(TransStatusBeforeTrans));
+    query.bindValue(":trans_status_after_trans", QVariant(TransStatusAfterTrans));
+    query.bindValue(":remaining_value", QVariant(RemainingValue));
+}
+
 unsigned int SJTInitComm_t::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -202,6 +189,12 @@ void SJTInitComm_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wri
 {
     writer.Key(VAR_NAME(CardInitDate)); writer.String(this->CardInitDate.c_str());
     writer.Key(VAR_NAME(InitBatchCode)); writer.Uint(this->InitBatchCode);
+}
+
+void SJTInitComm_t::sqltransaction(QSqlQuery& query)
+{
+    query.bindValue(":card_init_id", QVariant(CardInitDate.c_str()));
+    query.bindValue(":InitBatchCode", QVariant(InitBatchCode));
 }
 
 unsigned int SJTSale_t::parse(const char* data)
@@ -241,6 +234,21 @@ void SJTSale_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer)
     writer.Key(VAR_NAME(ValidEndDate)); writer.String(this->ValidEndDate.c_str());
     writer.Key(VAR_NAME(OperatorID)); writer.String(this->OperatorID.c_str());
     writer.Key(VAR_NAME(BOMShiftID)); writer.String(this->BOMShiftID.c_str());
+}
+
+void SJTSale_t::sqltransaction(QSqlQuery& query)
+{
+    query.bindValue(":paymentmeans", QVariant(Paymentmeans));
+    query.bindValue(":language_flag", QVariant(LanguageFlag));
+    query.bindValue(":transaction_value", QVariant(TransactionValue));
+    query.bindValue(":ticket_price_value", QVariant(TicketPriceValue));
+    query.bindValue(":change_value", QVariant(ChangeValue));
+    query.bindValue(":original_value", QVariant(OriginalValue));
+    query.bindValue(":transaction_status", QVariant(TransactionStatus));
+    query.bindValue(":valid_start_date", QVariant(ValidStartDate.c_str()));
+    query.bindValue(":valid_end_date", QVariant(ValidEndDate.c_str()));
+    query.bindValue(":operator_id", QVariant(OperatorID.c_str()));
+    query.bindValue(":bom_shift_id", QVariant(BOMShiftID.c_str()));
 }
 
 unsigned int CPUInitComm_t::parse(const char* data)
@@ -733,6 +741,22 @@ void TicketExit_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writ
     writer.Key(VAR_NAME(SAMSN)); writer.Uint(this->SAMSN);
 }
 
+void TicketExit_t::sqltransaction(QSqlQuery& query)
+{
+    query.bindValue(":entry_device_id", QVariant(EntryDeviceID.c_str()));
+    query.bindValue(":entry_time_hi", QVariant(EntryTimeHi.c_str()));
+    query.bindValue(":entry_time_lo", QVariant(EntryTimeLo.c_str()));
+    query.bindValue(":trans_status_before_trans", QVariant(TransStatusBeforeTrans));
+    query.bindValue(":trans_status_after_trans", QVariant(TransStatusAfterTrans));
+    // -2
+    query.bindValue(":transaction_value", QVariant(TransactionValue));
+    query.bindValue(":original_value", QVariant(OriginalValue));
+    query.bindValue(":sjt_recycle_flag", QVariant(SJTRecycleFlag));
+    query.bindValue(":deduce_location", QVariant(DeduceLocation));
+    query.bindValue(":terminate_number", QVariant(TerminateNumber.c_str()));
+    query.bindValue(":sam_sn", QVariant(SAMSN));
+}
+
 unsigned int RebateScheme_t::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -762,6 +786,17 @@ void RebateScheme_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wr
     writer.Key(VAR_NAME(PileConcessionID)); writer.Uint(this->PileConcessionID);
     writer.Key(VAR_NAME(CurrentBonus)); writer.Int(this->CurrentBonus);
     writer.Key(VAR_NAME(AccumulationBonus)); writer.Int(this->AccumulationBonus);
+}
+
+void RebateScheme_t::sqltransaction(QSqlQuery& query)
+{
+    query.bindValue(":join_concession_id", QVariant(JoinConcessionID));
+    query.bindValue(":join_concession_type", QVariant(JoinConcessionType));
+    query.bindValue(":join_concession_value", QVariant(JoinConcessionValue));
+    query.bindValue(":join_concession_percentage", QVariant(JoinConcessionPercentage));
+    query.bindValue(":pile_concession_id", QVariant(PileConcessionID));
+    query.bindValue(":current_bonus", QVariant(CurrentBonus));
+    query.bindValue(":accumulation_bonus", QVariant(AccumulationBonus));
 }
 
 unsigned int CPUCardDeduction_t::parse(const char* data)
@@ -1109,9 +1144,9 @@ unsigned int BankCardTicketComm_t::parse(const char* data)
     TicketFamilyType = _util.UShort(data + offset, len); offset += len;
     TicketType = _util.Byte(data + offset, len); offset += len;
     TicketCatalogID = _util.Byte(data + offset, len); offset += len;
-    PrimaryAccount = _util.UTF8String(data + offset, len); offset += len + 1;
-    BankCode = _util.BankCode(data + offset, len); offset += len;
-    PosNo = _util.PosNo(data + offset, len); offset += len;
+    PrimaryAccount = _util.UTF8String(data + offset, len); offset += len;
+    BankCode = _util.UTF8String(data + offset, len); offset += len;
+    PosNo = _util.UTF8String(data + offset, len); offset += len;
     TerminNo = _util.UInt(data + offset, len); offset += len;
 
     return offset;

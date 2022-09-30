@@ -1,5 +1,4 @@
 ﻿#include "fileparsewin.h"
-#include "src/tools/fileparser.h"
 #include <QPushButton>
 #include <QLabel>
 #include <QLineEdit>
@@ -13,6 +12,7 @@
 #include <QSettings>
 #include <QTextCodec>
 #include <QCoreApplication>
+#include <QCheckBox>
 #include <QDebug>
 #include <exception>
 
@@ -32,6 +32,7 @@ void FileParseWin::init_widgets()
 {
     _select = new QPushButton(QString::fromLocal8Bit("选择文件"));
     _filePath = new QLineEdit();
+    _mode = new QCheckBox();
     _class = new QLabel(QString::fromLocal8Bit("文件类别"));
     _class_text = new QLineEdit();
     _type = new QLabel(QString::fromLocal8Bit("文件类型"));
@@ -55,6 +56,7 @@ void FileParseWin::init_widgets()
 
     filepath->addWidget(_select);
     filepath->addWidget(_filePath);
+    filepath->addWidget(_mode);
     filepath->setContentsMargins(0, 0, 0, 0);
     filepath->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     filepath->setSpacing(10);
@@ -147,19 +149,113 @@ void FileParseWin::saveCfgFile()
     cfg.setValue("interval", _cfg.nFetchInterval);
     cfg.endGroup();
 }
-//#define FOLDER_PARSE
+
 void FileParseWin::onFilePathClicked()
 {
-#ifdef FOLDER_PARSE
-    QString folder = "D:/20220904";
-    QDir dir(folder);
-    QStringList files = dir.entryList(QDir::Files);
-
-    for (int i = 0; i < files.size(); ++i)
+    if (_mode->isChecked())
     {
-        QString name = files[i];
+        QString folder = QFileDialog::getExistingDirectory(nullptr
+                                                        , QString::fromLocal8Bit("选择目录")
+                                                        , _cfg.strOpenPath
+                                                        , QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+//        QString folder = "D:/20220904";
+        if (folder.isEmpty())
+        {
+            return;
+        }
 
-        QFile fp(folder + "/" + name);
+        QDir dir(folder);
+        QStringList files = dir.entryList(QDir::Files);
+
+        for (int i = 0; i < files.size(); ++i)
+        {
+            QString name = files[i];
+
+            QFile fp(folder + "/" + name);
+            if (!fp.open(QIODevice::ReadOnly))
+            {
+                QMessageBox::warning(nullptr, "Warning", "file open failed!", QMessageBox::Ok);
+                return;
+            }
+
+            QByteArray ba = fp.readAll();
+            fp.close();
+
+            _fParser.filePath = fp.fileName();
+
+            rapidjson::StringBuffer buf;
+            rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf);
+
+            switch (qFromBigEndian<uint32_t>(ba.left(4).data()))
+            {
+            case 0x01:
+                _fParser.YiPiaoTongTradeFile(writer, ba);
+                break;
+
+            case 0x02:
+                _fParser.YiKaTongTradeFile(writer, ba);
+                break;
+
+            case 0x03:
+                _fParser.PhoneTicketTradeFile(writer, ba);
+                break;
+
+            case 0x04:
+                _fParser.BankCardTradeFile(writer, ba);
+                break;
+
+            case 0x70:
+                _fParser.QRCodeTradeFile(writer, ba);
+                break;
+            }
+
+            _result->setText(QString("%1/%2").arg(i + 1).arg(files.size()));
+
+            QCoreApplication::processEvents();
+        }
+
+        _cfg.strOpenPath = folder;
+        saveCfgFile();
+
+//        _fParser.output();
+    }
+    else
+    {
+        QString filePath = QFileDialog::getOpenFileName(nullptr
+                                                        , QString::fromLocal8Bit("选择文件")
+                                                        , _cfg.strOpenPath // QStandardPaths::writableLocation(QStandardPaths::DesktopLocation)
+                                                        , "*.*");
+
+    //    QString filePath = "D:/20220829/UY01990101052022082906370901.01283A";
+
+        if (filePath.isEmpty())
+        {
+            return;
+        }
+
+        QFileInfo fi(filePath);
+
+        if (fi.completeBaseName().length() < 26
+            || fi.suffix().length() != 6)
+        {
+            QMessageBox::warning(nullptr, "Warning", "The file doesn't match!", QMessageBox::Ok);
+            return;
+        }
+
+        if (0 != _cfg.strOpenPath.compare(fi.absoluteDir().absolutePath(), Qt::CaseSensitive))
+        {
+            _cfg.strOpenPath = fi.absoluteDir().absolutePath();
+            saveCfgFile();
+        }
+
+        _filePath->setText(filePath);
+
+        QString fileName = fi.completeBaseName();
+
+        resolveFileClass(fileName[0].toLatin1());
+        resolveFileType(fileName[1].toLatin1());
+
+        QFile fp(filePath);
         if (!fp.open(QIODevice::ReadOnly))
         {
             QMessageBox::warning(nullptr, "Warning", "file open failed!", QMessageBox::Ok);
@@ -169,141 +265,40 @@ void FileParseWin::onFilePathClicked()
         QByteArray ba = fp.readAll();
         fp.close();
 
-        FileParser::filePath = fp.fileName();
-
         rapidjson::StringBuffer buf;
         rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf);
 
-        switch (qFromBigEndian<uint32_t>(ba.left(4).data()))
+        try
         {
-        case 0x01:
-            FileParser::YiPiaoTongTradeFile(writer, ba);
-            break;
+            switch (qFromBigEndian<uint32_t>(ba.left(4).data()))
+            {
+            case 0x01:
+                _fParser.YiPiaoTongTradeFile(writer, ba);
+                break;
 
-        case 0x02:
-            FileParser::YiKaTongTradeFile(writer, ba);
-            break;
+            case 0x02:
+                _fParser.YiKaTongTradeFile(writer, ba);
+                break;
 
-        case 0x03:
-            FileParser::PhoneTicketTradeFile(writer, ba);
-            break;
+            case 0x03:
+                _fParser.PhoneTicketTradeFile(writer, ba);
+                break;
 
-        case 0x04:
-            //FileParser::BankCardTradeFile(writer, ba);
-            break;
+            case 0x04:
+                _fParser.BankCardTradeFile(writer, ba);
+                break;
 
-        case 0x70:
-            FileParser::QRCodeTradeFile(writer, ba);
-            break;
+            case 0x70:
+                _fParser.QRCodeTradeFile(writer, ba);
+                break;
+            }
+        } catch (std::exception &e) {
+            qDebug() << "exception: " << e.what() << endl;
+            qDebug() << "exception file:" << filePath;
         }
 
-        _result->setText(QString("%1/%2").arg(i + 1).arg(files.size()));
-
-        QCoreApplication::processEvents();
+        _result->setText(buf.GetString());
     }
-
-    FileParser::output();
-
-    return;
-#else
-    QString filePath = QFileDialog::getOpenFileName(nullptr
-                                                    , QString::fromLocal8Bit("选择文件")
-                                                    , QStandardPaths::writableLocation(QStandardPaths::DesktopLocation)// _cfg.strOpenPath
-                                                    , "*.*");
-
-//    QString filePath = "D:/20220830/UY02991202012022083022302502.000250";
-
-    if (filePath.isEmpty())
-    {
-        return;
-    }
-
-    QFileInfo fi(filePath);
-
-    if (fi.completeBaseName().length() < 26
-        || fi.suffix().length() != 6)
-    {
-        QMessageBox::warning(nullptr, "Warning", "The file doesn't match!", QMessageBox::Ok);
-        return;
-    }
-
-    if (0 != _cfg.strOpenPath.compare(fi.absoluteDir().absolutePath(), Qt::CaseSensitive))
-    {
-        _cfg.strOpenPath = fi.absoluteDir().absolutePath();
-        saveCfgFile();
-    }
-
-    _filePath->setText(filePath);
-
-    QString fileName = fi.completeBaseName();
-    std::string szFileName = fileName.toStdString();
-
-    char fileClass = 0;
-    char fileType = 0;
-    unsigned int devType = 0;
-    unsigned int  devNum = 0;
-    unsigned int year = 0;
-    unsigned int  month = 0;
-    unsigned int  day = 0;
-    unsigned int  hour = 0;
-    unsigned int  min = 0;
-    unsigned int  sec = 0;
-    unsigned int vv = 0;
-
-    sscanf_s(szFileName.c_str(), "%c%c%02u%08u%04u%02u%02u%02u%02u%02u%02X"
-             , &fileClass, 1, &fileType, 1, &devType
-             , &devNum, &year, &month, &day, &hour, &min, &sec, &vv);
-
-    qDebug() << fileClass << fileType << devType << devNum
-             << year << month << day << hour << min << sec << vv;
-
-    resolveFileClass(fileClass);
-    resolveFileType(fileType);
-
-    QFile fp(filePath);
-    if (!fp.open(QIODevice::ReadOnly))
-    {
-        QMessageBox::warning(nullptr, "Warning", "file open failed!", QMessageBox::Ok);
-        return;
-    }
-
-    QByteArray ba = fp.readAll();
-    fp.close();
-
-    rapidjson::StringBuffer buf;
-    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf);
-
-    try
-    {
-        switch (qFromBigEndian<uint32_t>(ba.left(4).data()))
-        {
-        case 0x01:
-            FileParser::YiPiaoTongTradeFile(writer, ba);
-            break;
-
-        case 0x02:
-            FileParser::YiKaTongTradeFile(writer, ba);
-            break;
-
-        case 0x03:
-            FileParser::PhoneTicketTradeFile(writer, ba);
-            break;
-
-        case 0x04:
-            FileParser::BankCardTradeFile(writer, ba);
-            break;
-
-        case 0x70:
-            FileParser::QRCodeTradeFile(writer, ba);
-            break;
-        }
-    } catch (std::exception &e) {
-        qDebug() << "exception: " << e.what() << endl;
-        qDebug() << "exception file:" << filePath;
-    }
-
-    _result->setText(buf.GetString());
-#endif
 }
 
 void FileParseWin::onExportJsonClicked()

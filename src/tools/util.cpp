@@ -1,5 +1,6 @@
 ﻿#include "util.h"
 #include <QtEndian>
+#include <QDebug>
 
 template<class T>
 T big_endian(const char* ptr)
@@ -56,7 +57,10 @@ std::string Util::UTF8String(const char* data, unsigned int& len)
         memset(str, 0x00, 256);
         snprintf(str, 256, "%s", data + sizeof(uint32_t));
         res = std::string(str);
-        len = (len < 4) ? 4 : len;
+        if (len % 4 != 0)
+        {
+            len = (len / 4 + 1) * 4;
+        }
     }
 
     len += sizeof(uint32_t);
@@ -159,54 +163,5 @@ std::string Util::TerminateNumber(const char* data, unsigned int& len)
         , big_endian<uint8_t>(data + 4)
         , big_endian<uint8_t>(data + 3)
         , big_endian<uint8_t>(data + 2));
-    return std::string(str);
-}
-
-std::string Util::BankCode(const char *data, unsigned int &len)
-{
-    len = big_endian<uint32_t>(data);
-    char str[32] = "\0";
-    memset(str, 0x00, 32);
-    if (0 == len)
-    {
-        len = sizeof(uint32_t);
-        return "";
-    }
-    else if (1 == len)
-    {
-        len = sizeof(uint32_t) + sizeof(uint32_t);
-        snprintf(str, 32, "%s", data + sizeof(uint32_t));
-    }
-
-    return std::string(str);
-}
-
-std::string Util::PosNo(const char* data, unsigned int& len)
-{
-    unsigned int offset = 0;
-    len = big_endian<uint32_t>(data);
-    if (0 == len)
-    {
-        if (0x0c == big_endian<uint32_t>(data + 1))
-        {
-            offset = 1;
-            len = 0x0c;
-        }
-        else if (0x0c == big_endian<uint32_t>(data + 2))
-        {
-            offset = 2;
-            len = 0x0c;
-        }
-        else
-        {
-            len = sizeof(uint32_t);
-            return "";
-        }
-    }
-
-    char str[256] = "\0";
-    memset(str, 0x00, 256);
-    snprintf(str, 256, "%s", data + sizeof(uint32_t));
-    len += sizeof(uint32_t) + offset;
     return std::string(str);
 }

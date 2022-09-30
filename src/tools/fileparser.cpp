@@ -1,5 +1,8 @@
 ﻿#include "fileparser.h"
+#include "model.h"
+#include "util.h"
 #include <QtEndian>
+#include <QSqlDriver>
 #include <QDebug>
 
 template<class T>
@@ -91,13 +94,18 @@ std::string md5_string(const char *ptr)
 
 static QHash<unsigned int, QString> infos;
 
-QString FileParser::filePath;
-
 FileParser::FileParser()
 {
+    qDebug() << QSqlDatabase::drivers();
 
+    OpenDB();
 }
-#include "model.h"
+
+FileParser::~FileParser()
+{
+    CloseDB();
+}
+
 void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer
     , const QByteArray &ba)
 {
@@ -143,6 +151,9 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
     CPUCardDeduction_t cpucd;
     CPUCardSpecialPurseSale_t cpucsp;
 
+    db.transaction();
+    QSqlQuery query(db);
+
     for (unsigned int i = 0; i < cnt; ++i)
     {
         writer.StartObject();
@@ -170,6 +181,13 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
             tc.output(writer);
             sjtic.output(writer);
             sjts.output(writer);
+
+            query.prepare(txn_sjt_sale);
+            traPub.sqltransaction(query);
+            query.bindValue(":sub_global_message_id", "01_1");
+            tc.sqltransaction(query);
+            sjtic.sqltransaction(query);
+            sjts.sqltransaction(query);
             break;
         case 2:
 //            offset += YiPiaoTongUnsignedStoredValueTicket(writer, ba.mid(offset));
@@ -295,6 +313,12 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
 
             tc.output(writer);
             tentry.output(writer);
+
+            query.prepare(txn_ypt_entry);
+            traPub.sqltransaction(query);
+            query.bindValue(":sub_global_message_id", "01_13");
+            tc.sqltransaction(query);
+            tentry.sqltransaction(query);
             break;
         case 14:
 //            offset += YiPiaoTongExitStation(writer, ba.mid(offset));
@@ -306,6 +330,13 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
             tc.output(writer);
             texit.output(writer);
             rs.output(writer);
+
+            query.prepare(txn_ypt_exit);
+            traPub.sqltransaction(query);
+            query.bindValue(":sub_global_message_id", "01_14");
+            tc.sqltransaction(query);
+            texit.sqltransaction(query);
+            rs.sqltransaction(query);
             break;
         case 16:
 //            offset += YiPiaoTongStoredRefund(writer, ba.mid(offset));
@@ -339,6 +370,13 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
         offset += len;
         writer.Key("TAC"); writer.Uint(TAC);
 
+        query.bindValue(":tac", TAC);
+        if (!query.exec())
+        {
+            qDebug() << query.lastError();
+            qDebug() << query.lastQuery();
+        }
+
         writer.EndObject();
     }
 
@@ -349,6 +387,12 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
     writer.Key("MD5"); writer.String(MD5.c_str());
 
     writer.EndObject();
+
+    if (!db.commit())
+    {
+        qDebug() << query.lastError();
+        qDebug() << query.lastQuery();
+    }
 
     //unsigned int bytes = 0;
 
@@ -842,12 +886,52 @@ void FileParser::QRCodeTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuffer
 
 void FileParser::output()
 {
-//    qDebug() << infos;
     QHash<unsigned int, QString>::iterator it = infos.begin();
     for (; it != infos.end(); ++it)
     {
         qDebug() << it.key() << " - " << it.value();
     }
+}
+
+void FileParser::OpenDB()
+{
+    db = QSqlDatabase::addDatabase("QMYSQL");
+    db.setHostName("localhost");
+    db.setDatabaseName("cico_afc");
+    db.setUserName("root");
+    db.setPassword("123456");
+    db.setPort(3306);
+
+    if (!db.open())
+    {
+        qDebug() << db.lastError();
+        return;
+    }
+    else
+    {
+        qDebug() << "open database successful!";
+    }
+
+    if (!db.driver()->hasFeature(QSqlDriver::Transactions))
+    {
+        qDebug() << "database not support transaction.";
+    }
+
+    query = new QSqlQuery();
+}
+
+void FileParser::CloseDB()
+{
+    if (db.isOpen())
+    {
+        db.close();
+    }
+}
+
+void FileParser::TestFunc()
+{
+    QSqlQuery query;
+    query.exec("INSERT INTO `txn_sjt_sale` VALUES ('90', '1', '1970-01-01 08:00:00', '2022-09-04 07:34:00', '99', '9901', '99010305', '1048860679', '0', '1344', '1', '01_1', '1', '1', '0', '010414B84AEC4380', null, '1', '0', '146', '0.00', '2016-03-30 00:00:00', '90', '0', '0', '400.00', '400.00', '0.00', '800.00', '0', '2022-09-04 00:00:00', '2022-09-04 00:00:00', '000000', '00000000', '4130681223');");
 }
 
 unsigned int FileParser::YiPiaoTongHeaderPart(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer, const QByteArray &ba)
@@ -856,7 +940,7 @@ unsigned int FileParser::YiPiaoTongHeaderPart(rapidjson::PrettyWriter<rapidjson:
     const char *ptr = ba.data();
     const unsigned int FILE_NAME_LEN = 40;
 
-    writer.Key("GlobalMessageId"); writer.String(YiPiaoTong);
+    writer.Key("GlobalMessageId"); writer.String("01");
     writer.Key("FileType"); writer.Int(big_endian<uint32_t>(ptr + offset)); offset += sizeof(uint32_t);
     writer.Key("FileCreationTimeHi"); writer.String(SecsSinceEpoch(big_endian<uint32_t>(ptr + offset)).toStdString().c_str()); offset += sizeof(uint32_t);
     writer.Key("FileCreationTimeLo"); writer.String(SecsSinceEpoch(big_endian<uint32_t>(ptr + offset)).toStdString().c_str()); offset += sizeof(uint32_t);

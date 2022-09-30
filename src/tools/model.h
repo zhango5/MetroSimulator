@@ -3,15 +3,14 @@
 
 #include "iparser.h"
 #include <string>
-#include "util.h"
 
 #define VAR_NAME(_X_)    #_X_
 
 class DevOpFileHeader : public IParser
 {
 public:
-    DevOpFileHeader();
-    ~DevOpFileHeader();
+    DevOpFileHeader() {}
+    ~DevOpFileHeader() {}
 
 public:
     virtual unsigned int parse(const char* data) override;
@@ -34,12 +33,13 @@ private:
 class YiPiaoTongTradePub : public IParser
 {
 public:
-    YiPiaoTongTradePub();
-    ~YiPiaoTongTradePub();
+    YiPiaoTongTradePub() {}
+    ~YiPiaoTongTradePub() {}
 
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned short TxnType;
@@ -57,12 +57,13 @@ private:
 class TicketComm_t : public IParser
 {
 public:
-    TicketComm_t();
-    ~TicketComm_t();
+    TicketComm_t() {}
+    ~TicketComm_t() {}
 
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned short TicketFamilyType;
@@ -79,12 +80,13 @@ private:
 class TicketEntry_t : public IParser
 {
 public:
-    TicketEntry_t();
-    ~TicketEntry_t();
+    TicketEntry_t() {}
+    ~TicketEntry_t() {}
 
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned char  TransStatusBeforeTrans;
@@ -101,6 +103,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     std::string   CardInitDate;
@@ -116,6 +119,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned char Paymentmeans = 0;
@@ -422,6 +426,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     std::string    EntryDeviceID;
@@ -448,6 +453,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned char  JoinConcessionID;
