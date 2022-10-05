@@ -1,5 +1,6 @@
 ﻿#include "mainwindow.h"
 #include "fileparsewin.h"
+#include "parseservicewin.h"
 #include <QHBoxLayout>
 #include <QFile>
 
@@ -33,8 +34,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::initTabWidgets()
 {
+    _pParseSvrWin = new ParseServiceWin();
     _pFileParseWin = new FileParseWin();
 
+    _tab->addTab(_pParseSvrWin, QString::fromLocal8Bit("解析服务"));
     _tab->addTab(_pFileParseWin, QString::fromLocal8Bit("文件解析"));
 }
 

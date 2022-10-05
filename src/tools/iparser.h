@@ -12,7 +12,7 @@ public:
 
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) = 0;
 
-    virtual void sqltransaction(QSqlQuery& query) { Q_UNUSED(query) }
+    virtual void sqltransaction(QSqlQuery& query) = 0;
 };
 
 #endif // IPARSER_H

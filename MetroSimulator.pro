@@ -16,7 +16,9 @@ SOURCES += \
     src/tools/util.cpp \
     src/ui/fileparsewin.cpp \
     main.cpp \
-    src/ui/mainwindow.cpp
+    src/ui/mainwindow.cpp \
+    src/ui/parseservicewin.cpp \
+    third-party/qftp/qftp.cpp
 
 HEADERS += \
     src/tools/fileparser.h \
@@ -24,7 +26,9 @@ HEADERS += \
     src/tools/model.h \
     src/tools/util.h \
     src/ui/fileparsewin.h \
-    src/ui/mainwindow.h
+    src/ui/mainwindow.h \
+    src/ui/parseservicewin.h \
+    third-party/qftp/qftp.h
 
 INCLUDEPATH += \
     third-party

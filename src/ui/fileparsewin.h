@@ -12,19 +12,12 @@ QT_FORWARD_DECLARE_CLASS(QTextEdit)
 QT_FORWARD_DECLARE_CLASS(QCheckBox)
 QT_END_INCLUDE_NAMESPACE
 
-typedef struct
-{
-    QString strOpenPath;
-    int     nFetchInterval;
-} file_parse_cfg_t;
-
 class FileParseWin : public QWidget
 {
     Q_OBJECT
 public:
     explicit FileParseWin(QWidget *parent = nullptr);
-
-    void init_widgets();
+    ~FileParseWin();
 
 private:
     QPushButton* _select = nullptr;
@@ -37,13 +30,14 @@ private:
     QPushButton* _export = nullptr;
     QTextEdit*   _result = nullptr;
 
-    void resolveFileClass(char fc);
-    void resolveFileType(char ft);
-    void loadCfgFile();
-    void saveCfgFile();
+    void init_widgets();
+    void resolve_file_class(char fc);
+    void resolve_file_type(char ft);
+    void load_cfg_file();
+    void save_cfg_file();
 
-    file_parse_cfg_t _cfg;
     FileParser _fParser;
+    QString    _strOpenFolder;
 
 signals:
 

@@ -15,6 +15,7 @@ public:
 public:
     virtual unsigned int parse(const char* data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned short FileType;
@@ -39,7 +40,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
-    void sqltransaction(QSqlQuery& query) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned short TxnType;
@@ -63,7 +64,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
-    void sqltransaction(QSqlQuery& query) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned short TicketFamilyType;
@@ -86,7 +87,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
-    void sqltransaction(QSqlQuery& query) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned char  TransStatusBeforeTrans;
@@ -144,6 +145,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned int  IssuerCode = 0;
@@ -160,6 +162,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned char Paymentmeans = 0;
@@ -182,6 +185,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned char PassengerTypeID = 0;
@@ -200,6 +204,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned short TicketFamilyType;
@@ -227,6 +232,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     std::string   BankCode;
@@ -245,6 +251,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned char  Paymentmeans;
@@ -276,6 +283,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     int            PriceValue = 0;
@@ -294,6 +302,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     std::string    ValidDate;
@@ -320,6 +329,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     std::string    ConfirmTimeAtAccHi;
@@ -353,6 +363,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     std::string    OldValidDate;
@@ -371,6 +382,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned char  BlockReasonCode;
@@ -387,6 +399,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned char  UnblockReasonCode;
@@ -403,6 +416,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned char  SurchargeCode;
@@ -474,6 +488,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     int            TransactionValue;
@@ -490,6 +505,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned char  SalePaymentmeans;
@@ -513,6 +529,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned short TxnType;
@@ -549,6 +566,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     std::string   PassengerCNName;
@@ -568,6 +586,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     std::string   EntryDeviceID;
@@ -590,6 +609,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned char  SurchargeArea;
@@ -606,6 +626,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned short TxnType;
@@ -629,6 +650,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned short TicketFamilyType;
@@ -658,6 +680,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned short TxnType;
@@ -681,6 +704,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned short TicketFamilyType;
@@ -701,6 +725,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     int            PreAuthValue;
@@ -727,6 +752,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     int            PreAuthValue;
@@ -744,6 +770,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     int            TransValue;
@@ -764,6 +791,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned char  TestFlag;
@@ -783,6 +811,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned short TxnType;
@@ -806,6 +835,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned short TicketFamilyType;
@@ -824,6 +854,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     unsigned int   ReserveOne;
@@ -839,6 +870,7 @@ public:
 public:
     virtual unsigned int parse(const char *data) override;
     virtual void output(rapidjson::PrettyWriter<rapidjson::StringBuffer> &writer) override;
+    virtual void sqltransaction(QSqlQuery& query) override;
 
 private:
     int            TransValue;

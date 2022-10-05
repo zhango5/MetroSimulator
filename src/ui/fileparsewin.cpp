@@ -20,12 +20,12 @@ FileParseWin::FileParseWin(QWidget *parent)
     : QWidget(parent)
 {
     init_widgets();
-    loadCfgFile();
+    load_cfg_file();
+}
 
-    if (_cfg.strOpenPath.isEmpty())
-    {
-        _cfg.strOpenPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
-    }
+FileParseWin::~FileParseWin()
+{
+
 }
 
 void FileParseWin::init_widgets()
@@ -82,7 +82,7 @@ void FileParseWin::init_widgets()
     this->setLayout(l);
 }
 
-void FileParseWin::resolveFileClass(char fc)
+void FileParseWin::resolve_file_class(char fc)
 {
     switch (fc) {
     case 'U':
@@ -94,7 +94,7 @@ void FileParseWin::resolveFileClass(char fc)
     }
 }
 
-void FileParseWin::resolveFileType(char ft)
+void FileParseWin::resolve_file_type(char ft)
 {
     switch (ft) {
     case 'A':
@@ -122,33 +122,35 @@ void FileParseWin::resolveFileType(char ft)
     }
 }
 
-void FileParseWin::loadCfgFile()
+void FileParseWin::load_cfg_file()
 {
     QSettings cfg("./parsewincfg.ini", QSettings::IniFormat);
     cfg.setIniCodec(QTextCodec::codecForName("GBK"));
 
     cfg.beginGroup("folder");
-    _cfg.strOpenPath = cfg.value("path").toString();
+    _strOpenFolder = cfg.value("path").toString();
     cfg.endGroup();
 
-    cfg.beginGroup("config");
-    _cfg.nFetchInterval = cfg.value("interval").toInt();
-    cfg.endGroup();
+    if (_strOpenFolder.isEmpty())
+    {
+        _strOpenFolder = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+    }
 }
 
-void FileParseWin::saveCfgFile()
+void FileParseWin::save_cfg_file()
 {
     QSettings cfg("./parsewincfg.ini", QSettings::IniFormat);
     cfg.setIniCodec(QTextCodec::codecForName("GBK"));
 
     cfg.beginGroup("folder");
-    cfg.setValue("path", _cfg.strOpenPath);
+    cfg.setValue("path", _strOpenFolder);
     cfg.endGroup();
 
-    cfg.beginGroup("config");
-    cfg.setValue("interval", _cfg.nFetchInterval);
-    cfg.endGroup();
+//    cfg.beginGroup("config");
+//    cfg.setValue("interval", _cfg.nFetchInterval);
+    //    cfg.endGroup();
 }
+
 
 void FileParseWin::onFilePathClicked()
 {
@@ -156,7 +158,7 @@ void FileParseWin::onFilePathClicked()
     {
         QString folder = QFileDialog::getExistingDirectory(nullptr
                                                         , QString::fromLocal8Bit("选择目录")
-                                                        , _cfg.strOpenPath
+                                                        , _strOpenFolder
                                                         , QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 //        QString folder = "D:/20220904";
         if (folder.isEmpty())
@@ -180,8 +182,6 @@ void FileParseWin::onFilePathClicked()
 
             QByteArray ba = fp.readAll();
             fp.close();
-
-            _fParser.filePath = fp.fileName();
 
             rapidjson::StringBuffer buf;
             rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf);
@@ -214,16 +214,14 @@ void FileParseWin::onFilePathClicked()
             QCoreApplication::processEvents();
         }
 
-        _cfg.strOpenPath = folder;
-        saveCfgFile();
-
-//        _fParser.output();
+        _strOpenFolder = folder;
+        save_cfg_file();
     }
     else
     {
         QString filePath = QFileDialog::getOpenFileName(nullptr
                                                         , QString::fromLocal8Bit("选择文件")
-                                                        , _cfg.strOpenPath // QStandardPaths::writableLocation(QStandardPaths::DesktopLocation)
+                                                        , _strOpenFolder
                                                         , "*.*");
 
     //    QString filePath = "D:/20220829/UY01990101052022082906370901.01283A";
@@ -242,18 +240,18 @@ void FileParseWin::onFilePathClicked()
             return;
         }
 
-        if (0 != _cfg.strOpenPath.compare(fi.absoluteDir().absolutePath(), Qt::CaseSensitive))
+        if (0 != _strOpenFolder.compare(fi.absoluteDir().absolutePath(), Qt::CaseSensitive))
         {
-            _cfg.strOpenPath = fi.absoluteDir().absolutePath();
-            saveCfgFile();
+            _strOpenFolder = fi.absoluteDir().absolutePath();
+            save_cfg_file();
         }
 
         _filePath->setText(filePath);
 
         QString fileName = fi.completeBaseName();
 
-        resolveFileClass(fileName[0].toLatin1());
-        resolveFileType(fileName[1].toLatin1());
+        resolve_file_class(fileName[0].toLatin1());
+        resolve_file_type(fileName[1].toLatin1());
 
         QFile fp(filePath);
         if (!fp.open(QIODevice::ReadOnly))

@@ -41,6 +41,11 @@ void DevOpFileHeader::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& w
     writer.Key(VAR_NAME(FileHeaderTag)); writer.Uint(this->FileHeaderTag);
 }
 
+void DevOpFileHeader::sqltransaction(QSqlQuery& query)
+{
+    Q_UNUSED(query);
+}
+
 unsigned int YiPiaoTongTradePub::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -274,6 +279,11 @@ void CPUInitComm_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wri
     writer.Key(VAR_NAME(AppSN)); writer.String(this->AppSN.c_str());
 }
 
+void CPUInitComm_t::sqltransaction(QSqlQuery& query)
+{
+
+}
+
 unsigned int CPUCardSale_t::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -309,6 +319,11 @@ void CPUCardSale_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wri
     writer.Key(VAR_NAME(BOMShiftID)); writer.String(this->BOMShiftID.c_str());
 }
 
+void CPUCardSale_t::sqltransaction(QSqlQuery& query)
+{
+
+}
+
 unsigned int TicketPassengerComm_t::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -334,6 +349,11 @@ void TicketPassengerComm_t::output(rapidjson::PrettyWriter<rapidjson::StringBuff
     writer.Key(VAR_NAME(PassengerCNName)); writer.String(this->PassengerCNName.c_str());
     writer.Key(VAR_NAME(IdentificationType)); writer.Uint(this->IdentificationType);
     writer.Key(VAR_NAME(IdentificationCode)); writer.String(this->IdentificationCode.c_str());
+}
+
+void TicketPassengerComm_t::sqltransaction(QSqlQuery& query)
+{
+
 }
 
 unsigned int CPUCardMemberRegister_t::parse(const char* data)
@@ -381,6 +401,11 @@ void CPUCardMemberRegister_t::output(rapidjson::PrettyWriter<rapidjson::StringBu
     writer.Key(VAR_NAME(BOMShiftID)); writer.String(this->BOMShiftID.c_str());
 }
 
+void CPUCardMemberRegister_t::sqltransaction(QSqlQuery& query)
+{
+
+}
+
 unsigned int BankCardPayment_t::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -406,6 +431,11 @@ void BankCardPayment_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>&
     writer.Key(VAR_NAME(PosNo)); writer.String(this->PosNo.c_str());
     writer.Key(VAR_NAME(BankCardCode)); writer.String(this->BankCardCode.c_str());
     writer.Key(VAR_NAME(BankTransSN)); writer.Uint(this->BankTransSN);
+}
+
+void BankCardPayment_t::sqltransaction(QSqlQuery& query)
+{
+
 }
 
 unsigned int CPUCardAddValue_t::parse(const char* data)
@@ -461,6 +491,11 @@ void CPUCardAddValue_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>&
     writer.Key(VAR_NAME(RealTransactionValue)); writer.Int(this->RealTransactionValue);
 }
 
+void CPUCardAddValue_t::sqltransaction(QSqlQuery& query)
+{
+
+}
+
 unsigned int SJTRefund_t::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -486,6 +521,11 @@ void SJTRefund_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
     writer.Key(VAR_NAME(TransactionValue)); writer.Int(this->TransactionValue);
     writer.Key(VAR_NAME(OperatorID)); writer.String(this->OperatorID.c_str());
     writer.Key(VAR_NAME(BOMShiftID)); writer.String(this->BOMShiftID.c_str());
+}
+
+void SJTRefund_t::sqltransaction(QSqlQuery& query)
+{
+
 }
 
 unsigned int CPUCardImmediateRefund_t::parse(const char* data)
@@ -529,6 +569,11 @@ void CPUCardImmediateRefund_t::output(rapidjson::PrettyWriter<rapidjson::StringB
     writer.Key(VAR_NAME(TransactionValue)); writer.Int(this->TransactionValue);
     writer.Key(VAR_NAME(OperatorID)); writer.String(this->OperatorID.c_str());
     writer.Key(VAR_NAME(BOMShiftID)); writer.String(this->BOMShiftID.c_str());
+}
+
+void CPUCardImmediateRefund_t::sqltransaction(QSqlQuery& query)
+{
+
 }
 
 unsigned int CPUCardNonImmediateRefund_t::parse(const char* data)
@@ -588,6 +633,11 @@ void CPUCardNonImmediateRefund_t::output(rapidjson::PrettyWriter<rapidjson::Stri
     writer.Key(VAR_NAME(BOMShiftID)); writer.String(this->BOMShiftID.c_str());
 }
 
+void CPUCardNonImmediateRefund_t::sqltransaction(QSqlQuery& query)
+{
+
+}
+
 unsigned int CPUCardValidityPeriod_t::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -615,6 +665,11 @@ void CPUCardValidityPeriod_t::output(rapidjson::PrettyWriter<rapidjson::StringBu
     writer.Key(VAR_NAME(BOMShiftID)); writer.String(this->BOMShiftID.c_str());
 }
 
+void CPUCardValidityPeriod_t::sqltransaction(QSqlQuery& query)
+{
+
+}
+
 unsigned int CPUCardBlock_t::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -638,6 +693,11 @@ void CPUCardBlock_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wr
     writer.Key(VAR_NAME(BOMShiftID)); writer.String(this->BOMShiftID.c_str());
 }
 
+void CPUCardBlock_t::sqltransaction(QSqlQuery& query)
+{
+
+}
+
 unsigned int CPUCardUnblock_t::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -659,6 +719,11 @@ void CPUCardUnblock_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& 
     writer.Key(VAR_NAME(UnblockReasonCode)); writer.Uint(this->UnblockReasonCode);
     writer.Key(VAR_NAME(OperatorID)); writer.String(this->OperatorID.c_str());
     writer.Key(VAR_NAME(BOMShiftID)); writer.String(this->BOMShiftID.c_str());
+}
+
+void CPUCardUnblock_t::sqltransaction(QSqlQuery& query)
+{
+
 }
 
 unsigned int TicketSurcharge_t::parse(const char* data)
@@ -696,6 +761,11 @@ void TicketSurcharge_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>&
     writer.Key(VAR_NAME(TransactionValue)); writer.Int(this->TransactionValue);
     writer.Key(VAR_NAME(OperatorID)); writer.String(this->OperatorID.c_str());
     writer.Key(VAR_NAME(BOMShiftID)); writer.String(this->BOMShiftID.c_str());
+}
+
+void TicketSurcharge_t::sqltransaction(QSqlQuery& query)
+{
+
 }
 
 unsigned int TicketExit_t::parse(const char* data)
@@ -822,6 +892,11 @@ void CPUCardDeduction_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>
     writer.Key(VAR_NAME(BOMShiftID)); writer.String(this->BOMShiftID.c_str());
 }
 
+void CPUCardDeduction_t::sqltransaction(QSqlQuery& query)
+{
+
+}
+
 unsigned int CPUCardSpecialPurseSale_t::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -857,6 +932,11 @@ void CPUCardSpecialPurseSale_t::output(rapidjson::PrettyWriter<rapidjson::String
     writer.Key(VAR_NAME(SaleSectionID)); writer.Uint(this->SaleSectionID);
     writer.Key(VAR_NAME(SaleOperatorID)); writer.String(this->SaleOperatorID.c_str());
     writer.Key(VAR_NAME(SaleBOMShiftID)); writer.String(this->SaleBOMShiftID.c_str());
+}
+
+void CPUCardSpecialPurseSale_t::sqltransaction(QSqlQuery& query)
+{
+
 }
 
 unsigned int YiKaTongTradePub::parse(const char* data)
@@ -922,6 +1002,11 @@ void YiKaTongTradePub::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& 
     writer.Key(VAR_NAME(TransactionType)); writer.Uint(this->TransactionType);
 }
 
+void YiKaTongTradePub::sqltransaction(QSqlQuery& query)
+{
+
+}
+
 unsigned int YKTTicketPassengerComm_t::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -949,6 +1034,11 @@ void YKTTicketPassengerComm_t::output(rapidjson::PrettyWriter<rapidjson::StringB
     writer.Key(VAR_NAME(TelephoneCode)); writer.String(this->TelephoneCode.c_str());
     writer.Key(VAR_NAME(Address)); writer.String(this->Address.c_str());
     writer.Key(VAR_NAME(CompanyName)); writer.String(this->CompanyName.c_str());
+}
+
+void YKTTicketPassengerComm_t::sqltransaction(QSqlQuery& query)
+{
+
 }
 
 unsigned int YKTTicketExit_t::parse(const char* data)
@@ -986,6 +1076,11 @@ void YKTTicketExit_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& w
     writer.Key(VAR_NAME(OriginalValue)); writer.Int(this->OriginalValue);
 }
 
+void YKTTicketExit_t::sqltransaction(QSqlQuery& query)
+{
+
+}
+
 unsigned int YKTMetroStart_t::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -1007,6 +1102,11 @@ void YKTMetroStart_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& w
     writer.Key(VAR_NAME(SurchargeArea)); writer.Uint(this->SurchargeArea);
     writer.Key(VAR_NAME(OperatorID)); writer.String(this->OperatorID.c_str());
     writer.Key(VAR_NAME(BOMShiftID)); writer.String(this->BOMShiftID.c_str());
+}
+
+void YKTMetroStart_t::sqltransaction(QSqlQuery& query)
+{
+
 }
 
 unsigned int CellPhoneTradePub::parse(const char* data)
@@ -1044,6 +1144,11 @@ void CellPhoneTradePub::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>&
     writer.Key(VAR_NAME(ModeCode)); writer.Int(this->ModeCode);
     writer.Key(VAR_NAME(UDSN)); writer.Uint(this->UDSN);
     writer.Key(VAR_NAME(TransactionType)); writer.Uint(this->TransactionType);
+}
+
+void CellPhoneTradePub::sqltransaction(QSqlQuery& query)
+{
+
 }
 
 unsigned int MobileDeduction_t::parse(const char* data)
@@ -1095,6 +1200,11 @@ void MobileDeduction_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>&
     writer.Key(VAR_NAME(BOMShiftID)); writer.String(this->BOMShiftID.c_str());
 }
 
+void MobileDeduction_t::sqltransaction(QSqlQuery& query)
+{
+
+}
+
 unsigned int BankCardTradePub::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -1132,6 +1242,11 @@ void BankCardTradePub::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& 
     writer.Key(VAR_NAME(TransactionType)); writer.Uint(this->TransactionType);
 }
 
+void BankCardTradePub::sqltransaction(QSqlQuery& query)
+{
+
+}
+
 unsigned int BankCardTicketComm_t::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -1161,6 +1276,11 @@ void BankCardTicketComm_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffe
     writer.Key(VAR_NAME(BankCode)); writer.String(this->BankCode.c_str());
     writer.Key(VAR_NAME(PosNo)); writer.String(this->PosNo.c_str());
     writer.Key(VAR_NAME(TerminNo)); writer.Uint(this->TerminNo);
+}
+
+void BankCardTicketComm_t::sqltransaction(QSqlQuery& query)
+{
+
 }
 
 unsigned int BankCardSurcharge_t::parse(const char* data)
@@ -1206,6 +1326,11 @@ void BankCardSurcharge_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer
     writer.Key(VAR_NAME(ReserveTwo)); writer.Uint(this->ReserveTwo);
 }
 
+void BankCardSurcharge_t::sqltransaction(QSqlQuery& query)
+{
+
+}
+
 unsigned int BankCardEntry_t::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -1229,6 +1354,11 @@ void BankCardEntry_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& w
     writer.Key(VAR_NAME(AuthCode)); writer.String(this->AuthCode.c_str());
     writer.Key(VAR_NAME(ReserveOne)); writer.Uint(this->ReserveOne);
     writer.Key(VAR_NAME(ReserveTwo)); writer.Uint(this->ReserveTwo);
+}
+
+void BankCardEntry_t::sqltransaction(QSqlQuery& query)
+{
+
 }
 
 unsigned int BankCardExit_t::parse(const char* data)
@@ -1262,6 +1392,11 @@ void BankCardExit_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wr
     writer.Key(VAR_NAME(ReserveTwo)); writer.Uint(this->ReserveTwo);
 }
 
+void BankCardExit_t::sqltransaction(QSqlQuery& query)
+{
+
+}
+
 unsigned int BankCardDeduction_t::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -1289,6 +1424,11 @@ void BankCardDeduction_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer
     writer.Key(VAR_NAME(RemainingValueAfterTrans)); writer.Int(this->RemainingValueAfterTrans);
     writer.Key(VAR_NAME(OperatorID)); writer.String(this->OperatorID.c_str());
     writer.Key(VAR_NAME(BOMShiftID)); writer.String(this->BOMShiftID.c_str());
+}
+
+void BankCardDeduction_t::sqltransaction(QSqlQuery& query)
+{
+
 }
 
 unsigned int QRCodeTradePub::parse(const char* data)
@@ -1328,6 +1468,11 @@ void QRCodeTradePub::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wr
     writer.Key(VAR_NAME(TransactionType)); writer.Uint(this->TransactionType);
 }
 
+void QRCodeTradePub::sqltransaction(QSqlQuery& query)
+{
+
+}
+
 unsigned int QRCodeTicketComm_t::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -1355,6 +1500,11 @@ void QRCodeTicketComm_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>
     writer.Key(VAR_NAME(QRCodeID)); writer.String(this->QRCodeID.c_str());
 }
 
+void QRCodeTicketComm_t::sqltransaction(QSqlQuery& query)
+{
+
+}
+
 unsigned int QRCodeUnnamed::parse(const char* data)
 {
     if (nullptr == data) return 0;
@@ -1374,6 +1524,11 @@ void QRCodeUnnamed::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wri
 {
     writer.Key(VAR_NAME(ReserveOne)); writer.Uint(this->ReserveOne);
     writer.Key(VAR_NAME(ReserveTwo)); writer.Uint(this->ReserveTwo);
+}
+
+void QRCodeUnnamed::sqltransaction(QSqlQuery& query)
+{
+
 }
 
 unsigned int QRCodeExit_t::parse(const char* data)
@@ -1403,4 +1558,9 @@ void QRCodeExit_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writ
     writer.Key(VAR_NAME(StartTimeLo)); writer.String(this->StartTimeLo.c_str());
     writer.Key(VAR_NAME(ReserveOne)); writer.Uint(this->ReserveOne);
     writer.Key(VAR_NAME(ReserveTwo)); writer.Uint(this->ReserveTwo);
+}
+
+void QRCodeExit_t::sqltransaction(QSqlQuery& query)
+{
+
 }

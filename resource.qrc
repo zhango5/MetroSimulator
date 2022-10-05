@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>style/stylesheet.qss</file>
+        <file>style/play.png</file>
+        <file>style/stop.png</file>
     </qresource>
 </RCC>

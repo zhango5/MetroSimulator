@@ -18,3 +18,17 @@ QPushButton:pressed {
     color: black;
     background-color: #EEEEEE;
 }
+
+QPushButton#ServerController[state=unchecked] {
+    background-color: transparent;
+    background-image: url(://style/play.png)
+}
+
+QPushButton#ServerController[state=checked] {
+    background-color: transparent;
+    background-image: url(://style/stop.png)
+}
+
+QPushButton#ServerController:hover {
+    background-color: #BBDEFB;
+}
