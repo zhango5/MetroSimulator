@@ -281,7 +281,9 @@ void CPUInitComm_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wri
 
 void CPUInitComm_t::sqltransaction(QSqlQuery& query)
 {
-
+    query.bindValue(":issuer_code", QVariant(IssuerCode));
+    query.bindValue(":card_issue_date", QVariant(CardIssueDate.c_str()));
+    query.bindValue(":app_sn", QVariant(AppSN.c_str()));
 }
 
 unsigned int CPUCardSale_t::parse(const char* data)
@@ -321,7 +323,7 @@ void CPUCardSale_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wri
 
 void CPUCardSale_t::sqltransaction(QSqlQuery& query)
 {
-
+    Q_UNUSED(query);
 }
 
 unsigned int TicketPassengerComm_t::parse(const char* data)
@@ -353,7 +355,7 @@ void TicketPassengerComm_t::output(rapidjson::PrettyWriter<rapidjson::StringBuff
 
 void TicketPassengerComm_t::sqltransaction(QSqlQuery& query)
 {
-
+    Q_UNUSED(query);
 }
 
 unsigned int CPUCardMemberRegister_t::parse(const char* data)
@@ -403,7 +405,7 @@ void CPUCardMemberRegister_t::output(rapidjson::PrettyWriter<rapidjson::StringBu
 
 void CPUCardMemberRegister_t::sqltransaction(QSqlQuery& query)
 {
-
+    Q_UNUSED(query);
 }
 
 unsigned int BankCardPayment_t::parse(const char* data)
@@ -435,7 +437,11 @@ void BankCardPayment_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>&
 
 void BankCardPayment_t::sqltransaction(QSqlQuery& query)
 {
-
+    query.bindValue(":bank_code", QVariant(BankCode.c_str()));
+    query.bindValue(":biz_code", QVariant(BIZCode.c_str()));
+    query.bindValue(":pos_no", QVariant(PosNo.c_str()));
+    query.bindValue(":bank_card_code", QVariant(BankCardCode.c_str()));
+    query.bindValue(":bank_trans_sn", QVariant(BankTransSN));
 }
 
 unsigned int CPUCardAddValue_t::parse(const char* data)
@@ -493,7 +499,24 @@ void CPUCardAddValue_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>&
 
 void CPUCardAddValue_t::sqltransaction(QSqlQuery& query)
 {
-
+    query.bindValue(":paymentmeans", QVariant(Paymentmeans));
+    query.bindValue(":transaction_value", QVariant(TransactionValue));
+    query.bindValue(":valid_date_before_add_value", QVariant(ValidDateBeforeAddValue.c_str()));
+    query.bindValue(":valid_date_after_add_value", QVariant(ValidDateAfterAddValue.c_str()));
+    query.bindValue(":new_remaining_value", QVariant(NewRemainingValue));
+    bcp.sqltransaction(query);
+    query.bindValue(":last_add_transaction_value", QVariant(LastAddTransactionValue));
+    query.bindValue(":last_add_value_time_hi", QVariant(LastAddValueTimeHi.c_str()));
+    query.bindValue(":last_add_value_time_lo", QVariant(LastAddValueTimeLo.c_str()));
+    query.bindValue(":last_add_value_udsn", QVariant(LastAddValueUDSN));
+    query.bindValue(":last_add_value_sam_id", QVariant(LastAddValueSAMID.c_str()));
+    query.bindValue(":last_add_value_device_id", QVariant(LastAddValueDeviceID.c_str()));
+    query.bindValue(":operator_id", QVariant(OperatorID.c_str()));
+    query.bindValue(":bom_shift_id", QVariant(BOMShiftID.c_str()));
+    query.bindValue(":charge_terminate_number", QVariant(ChargeTerminateNumber.c_str()));
+    query.bindValue(":host_transaction_time_hi", QVariant(HostTransactionTimeHi.c_str()));
+    query.bindValue(":host_transaction_time_lo", QVariant(HostTransactionTimeLo.c_str()));
+    query.bindValue(":real_transaction_value", QVariant(RealTransactionValue));
 }
 
 unsigned int SJTRefund_t::parse(const char* data)
@@ -525,7 +548,11 @@ void SJTRefund_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 
 void SJTRefund_t::sqltransaction(QSqlQuery& query)
 {
-
+    query.bindValue(":price_value", QVariant(PriceValue));
+    query.bindValue(":refund_reason", QVariant(RefundReason));
+    query.bindValue(":transaction_status", QVariant(TransactionValue));
+    query.bindValue(":operator_id", QVariant(OperatorID.c_str()));
+    query.bindValue(":bom_shift_id", QVariant(BOMShiftID.c_str()));
 }
 
 unsigned int CPUCardImmediateRefund_t::parse(const char* data)
@@ -573,7 +600,7 @@ void CPUCardImmediateRefund_t::output(rapidjson::PrettyWriter<rapidjson::StringB
 
 void CPUCardImmediateRefund_t::sqltransaction(QSqlQuery& query)
 {
-
+    Q_UNUSED(query);
 }
 
 unsigned int CPUCardNonImmediateRefund_t::parse(const char* data)
@@ -635,7 +662,7 @@ void CPUCardNonImmediateRefund_t::output(rapidjson::PrettyWriter<rapidjson::Stri
 
 void CPUCardNonImmediateRefund_t::sqltransaction(QSqlQuery& query)
 {
-
+    Q_UNUSED(query);
 }
 
 unsigned int CPUCardValidityPeriod_t::parse(const char* data)
@@ -667,7 +694,7 @@ void CPUCardValidityPeriod_t::output(rapidjson::PrettyWriter<rapidjson::StringBu
 
 void CPUCardValidityPeriod_t::sqltransaction(QSqlQuery& query)
 {
-
+    Q_UNUSED(query);
 }
 
 unsigned int CPUCardBlock_t::parse(const char* data)
@@ -695,7 +722,9 @@ void CPUCardBlock_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wr
 
 void CPUCardBlock_t::sqltransaction(QSqlQuery& query)
 {
-
+    query.bindValue(":block_reason_code", QVariant(BlockReasonCode));
+    query.bindValue(":operator_id", QVariant(OperatorID.c_str()));
+    query.bindValue(":bom_shift_id", QVariant(BOMShiftID.c_str()));
 }
 
 unsigned int CPUCardUnblock_t::parse(const char* data)
@@ -723,7 +752,9 @@ void CPUCardUnblock_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& 
 
 void CPUCardUnblock_t::sqltransaction(QSqlQuery& query)
 {
-
+    query.bindValue(":unblock_reason_code", QVariant(UnblockReasonCode));
+    query.bindValue(":operator_id", QVariant(OperatorID.c_str()));
+    query.bindValue(":bom_shift_id", QVariant(BOMShiftID.c_str()));
 }
 
 unsigned int TicketSurcharge_t::parse(const char* data)
@@ -765,7 +796,16 @@ void TicketSurcharge_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>&
 
 void TicketSurcharge_t::sqltransaction(QSqlQuery& query)
 {
-
+    query.bindValue(":surcharge_code", QVariant(SurchargeCode));
+    query.bindValue(":paymentmeans", QVariant(Paymentmeans));
+    query.bindValue(":trans_status_before_trans", QVariant(TransStatusBeforeTrans));
+    query.bindValue(":trans_status_after_trans", QVariant(TransStatusAfterTrans));
+    query.bindValue(":sale_device_id", QVariant(SaleDeviceID.c_str()));
+    query.bindValue(":ticket_sale_value", QVariant(TicketSaleValue));
+    query.bindValue(":surcharge_area", QVariant(SurchargeArea));
+    query.bindValue(":transaction_value", QVariant(TransactionValue));
+    query.bindValue(":operator_id", QVariant(OperatorID.c_str()));
+    query.bindValue(":bom_shift_id", QVariant(BOMShiftID.c_str()));
 }
 
 unsigned int TicketExit_t::parse(const char* data)
@@ -818,7 +858,8 @@ void TicketExit_t::sqltransaction(QSqlQuery& query)
     query.bindValue(":entry_time_lo", QVariant(EntryTimeLo.c_str()));
     query.bindValue(":trans_status_before_trans", QVariant(TransStatusBeforeTrans));
     query.bindValue(":trans_status_after_trans", QVariant(TransStatusAfterTrans));
-    // -2
+    query.bindValue(":remaining_value_before_trans", QVariant(RemainingValueBeforeTrans));
+    query.bindValue(":remaining_value_after_trans", QVariant(RemainingValueAfterTrans));
     query.bindValue(":transaction_value", QVariant(TransactionValue));
     query.bindValue(":original_value", QVariant(OriginalValue));
     query.bindValue(":sjt_recycle_flag", QVariant(SJTRecycleFlag));
@@ -894,7 +935,7 @@ void CPUCardDeduction_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>
 
 void CPUCardDeduction_t::sqltransaction(QSqlQuery& query)
 {
-
+    Q_UNUSED(query);
 }
 
 unsigned int CPUCardSpecialPurseSale_t::parse(const char* data)
@@ -936,7 +977,7 @@ void CPUCardSpecialPurseSale_t::output(rapidjson::PrettyWriter<rapidjson::String
 
 void CPUCardSpecialPurseSale_t::sqltransaction(QSqlQuery& query)
 {
-
+    Q_UNUSED(query);
 }
 
 unsigned int YiKaTongTradePub::parse(const char* data)
@@ -1004,7 +1045,7 @@ void YiKaTongTradePub::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& 
 
 void YiKaTongTradePub::sqltransaction(QSqlQuery& query)
 {
-
+    Q_UNUSED(query);
 }
 
 unsigned int YKTTicketPassengerComm_t::parse(const char* data)
@@ -1038,7 +1079,7 @@ void YKTTicketPassengerComm_t::output(rapidjson::PrettyWriter<rapidjson::StringB
 
 void YKTTicketPassengerComm_t::sqltransaction(QSqlQuery& query)
 {
-
+    Q_UNUSED(query);
 }
 
 unsigned int YKTTicketExit_t::parse(const char* data)
@@ -1078,7 +1119,15 @@ void YKTTicketExit_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& w
 
 void YKTTicketExit_t::sqltransaction(QSqlQuery& query)
 {
-
+    query.bindValue(":entry_device_id", QVariant(EntryDeviceID.c_str()));
+    query.bindValue(":entry_time_hi", QVariant(EntryTimeHi.c_str()));
+    query.bindValue(":entry_time_lo", QVariant(EntryTimeLo.c_str()));
+    query.bindValue(":trans_status_before_trans", QVariant(TransStatusBeforeTrans));
+    query.bindValue(":trans_status_after_trans", QVariant(TransStatusAfterTrans));
+    query.bindValue(":remaining_value_befor_trans", QVariant(RemainingValueBeforeTrans));
+    query.bindValue(":remaining_value_after_trans", QVariant(RemainingValueAfterTrans));
+    query.bindValue(":transaction_value", QVariant(TransactionValue));
+    query.bindValue(":original_value", QVariant(OriginalValue));
 }
 
 unsigned int YKTMetroStart_t::parse(const char* data)
@@ -1106,7 +1155,7 @@ void YKTMetroStart_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& w
 
 void YKTMetroStart_t::sqltransaction(QSqlQuery& query)
 {
-
+    Q_UNUSED(query);
 }
 
 unsigned int CellPhoneTradePub::parse(const char* data)
@@ -1148,7 +1197,7 @@ void CellPhoneTradePub::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>&
 
 void CellPhoneTradePub::sqltransaction(QSqlQuery& query)
 {
-
+    Q_UNUSED(query);
 }
 
 unsigned int MobileDeduction_t::parse(const char* data)
@@ -1202,7 +1251,7 @@ void MobileDeduction_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>&
 
 void MobileDeduction_t::sqltransaction(QSqlQuery& query)
 {
-
+    Q_UNUSED(query);
 }
 
 unsigned int BankCardTradePub::parse(const char* data)
@@ -1244,7 +1293,7 @@ void BankCardTradePub::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& 
 
 void BankCardTradePub::sqltransaction(QSqlQuery& query)
 {
-
+    Q_UNUSED(query);
 }
 
 unsigned int BankCardTicketComm_t::parse(const char* data)
@@ -1280,7 +1329,13 @@ void BankCardTicketComm_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffe
 
 void BankCardTicketComm_t::sqltransaction(QSqlQuery& query)
 {
-
+    query.bindValue(":ticket_family_type", QVariant(TicketFamilyType));
+    query.bindValue(":ticket_type", QVariant(TicketType));
+    query.bindValue(":ticket_catalog_id", QVariant(TicketCatalogID));
+    query.bindValue(":primary_account", QVariant(PrimaryAccount.c_str()));
+    query.bindValue(":bank_code", QVariant(BankCode.c_str()));
+    query.bindValue(":pos_no", QVariant(PosNo.c_str()));
+    query.bindValue(":termin_no", QVariant(TerminNo));
 }
 
 unsigned int BankCardSurcharge_t::parse(const char* data)
@@ -1328,7 +1383,7 @@ void BankCardSurcharge_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer
 
 void BankCardSurcharge_t::sqltransaction(QSqlQuery& query)
 {
-
+    Q_UNUSED(query);
 }
 
 unsigned int BankCardEntry_t::parse(const char* data)
@@ -1358,7 +1413,10 @@ void BankCardEntry_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& w
 
 void BankCardEntry_t::sqltransaction(QSqlQuery& query)
 {
-
+    query.bindValue(":pre_auth_value", QVariant(PreAuthValue));
+    query.bindValue(":auth_code", QVariant(AuthCode.c_str()));
+    query.bindValue(":reserve_one", QVariant(ReserveOne));
+    query.bindValue(":reserve_two", QVariant(ReserveTwo));
 }
 
 unsigned int BankCardExit_t::parse(const char* data)
@@ -1394,7 +1452,13 @@ void BankCardExit_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wr
 
 void BankCardExit_t::sqltransaction(QSqlQuery& query)
 {
-
+    query.bindValue(":trans_value", QVariant(TransValue));
+    query.bindValue(":dis_trans_value", QVariant(DisTransValue));
+    query.bindValue(":start_device", QVariant(StartDevice.c_str()));
+    query.bindValue(":start_time_hi", QVariant(StartTimeHi.c_str()));
+    query.bindValue(":start_time_lo", QVariant(StartTimeLo.c_str()));
+    query.bindValue(":reserve_one", QVariant(ReserveOne));
+    query.bindValue(":reserve_two", QVariant(ReserveTwo));
 }
 
 unsigned int BankCardDeduction_t::parse(const char* data)
@@ -1428,7 +1492,7 @@ void BankCardDeduction_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer
 
 void BankCardDeduction_t::sqltransaction(QSqlQuery& query)
 {
-
+    Q_UNUSED(query);
 }
 
 unsigned int QRCodeTradePub::parse(const char* data)
@@ -1470,7 +1534,7 @@ void QRCodeTradePub::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wr
 
 void QRCodeTradePub::sqltransaction(QSqlQuery& query)
 {
-
+    Q_UNUSED(query);
 }
 
 unsigned int QRCodeTicketComm_t::parse(const char* data)
@@ -1502,7 +1566,11 @@ void QRCodeTicketComm_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>
 
 void QRCodeTicketComm_t::sqltransaction(QSqlQuery& query)
 {
-
+    query.bindValue(":ticket_family_type", QVariant(TicketFamilyType));
+    query.bindValue(":ticket_type", QVariant(TicketType));
+    query.bindValue(":ticket_catalog_id", QVariant(TicketCatalogID));
+    query.bindValue(":uid", QVariant(Uid.c_str()));
+    query.bindValue(":qr_code_id", QVariant(QRCodeID.c_str()));
 }
 
 unsigned int QRCodeUnnamed::parse(const char* data)
@@ -1528,7 +1596,8 @@ void QRCodeUnnamed::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wri
 
 void QRCodeUnnamed::sqltransaction(QSqlQuery& query)
 {
-
+    query.bindValue(":reserve_one", QVariant(ReserveOne));
+    query.bindValue(":reserve_two", QVariant(ReserveTwo));
 }
 
 unsigned int QRCodeExit_t::parse(const char* data)
@@ -1562,5 +1631,10 @@ void QRCodeExit_t::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writ
 
 void QRCodeExit_t::sqltransaction(QSqlQuery& query)
 {
-
+    query.bindValue(":trans_value", QVariant(TransValue));
+    query.bindValue(":start_device", QVariant(StartDevice.c_str()));
+    query.bindValue(":start_time_hi", QVariant(StartTimeHi.c_str()));
+    query.bindValue(":start_time_lo", QVariant(StartTimeLo.c_str()));
+    query.bindValue(":reserve_one", QVariant(ReserveOne));
+    query.bindValue(":reserve_two", QVariant(ReserveTwo));
 }

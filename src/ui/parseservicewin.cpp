@@ -19,6 +19,7 @@
 #include <QtNetwork>
 
 #define CACHE_FOLDER "cache"
+#define FOLDER_FMT   "yyyyMMdd"
 
 ParseServiceWin::ParseServiceWin(QWidget* parent)
     : QWidget(parent)
@@ -27,6 +28,7 @@ ParseServiceWin::ParseServiceWin(QWidget* parent)
     load_cfg_file();
     init_db_connect();
     init_ftp_connect();
+    clear_dirty_history();
 }
 
 ParseServiceWin::~ParseServiceWin()
@@ -42,8 +44,6 @@ void ParseServiceWin::init_widgets()
     _controller->setFixedSize(128, 128);
     _controller->setObjectName("ServerController");
     _controller->setProperty("state", "unchecked");
-//    _controller->setCheckable(true);
-//    _controller->setText(QString::fromLocal8Bit("启动服务"));
 
     _progressbar->setFixedSize(320, 30);
     _progressbar->setMinimum(0);
@@ -75,12 +75,14 @@ void ParseServiceWin::init_widgets()
         {
             _controller->setProperty("state", "unchecked");
             _fetchTimer.stop();
+            _progressbar->setMaximum(100);
         }
         else
         {
             if (QFtp::State::LoggedIn == _ftp_state)
             {
                 _controller->setProperty("state", "checked");
+                _progressbar->setMaximum(0);
                 if (!_fetchTimer.isActive())
                     _fetchTimer.start();
             }
@@ -120,6 +122,7 @@ void ParseServiceWin::init_ftp_connect()
     _ftp.cd(_cfg.ftp.path);
 
     connect(&_ftp, &QFtp::stateChanged, this, [&](int st) {
+        qDebug() << "ftp state change: " << st;
         _ftp_state = static_cast<QFtp::State>(st);
     });
     connect(&_ftp, &QFtp::listInfo, this, [&](const QUrlInfo &info) {
@@ -129,6 +132,12 @@ void ParseServiceWin::init_ftp_connect()
         }
 
         if (!_files.contains(info.name())) {
+            if (QFile::exists(QString("%1/%2/%3.json").arg(_backup.absolutePath()).arg(_date.toString(FOLDER_FMT)).arg(QFileInfo(info.name()).baseName())))
+            {
+                _files.append(info.name());
+                return;
+            }
+
             QFile* fp = new QFile(QString("%1/%2/%3").arg(QDir::currentPath(), CACHE_FOLDER, info.name()));
             if (fp->open(QIODevice::ReadWrite))
             {
@@ -137,7 +146,7 @@ void ParseServiceWin::init_ftp_connect()
             }
             else
             {
-                qDebug() << "open file failed.";
+                qDebug() << "open file failed." << info.name();
             }
         }
     });
@@ -145,6 +154,7 @@ void ParseServiceWin::init_ftp_connect()
         if (_ftp.currentCommand() == QFtp::Get)
         {
             QFile* fp = _download_list.value(id);
+            QString fileName;
             if (nullptr != fp)
             {
                 if (error)
@@ -153,37 +163,13 @@ void ParseServiceWin::init_ftp_connect()
                     return;
                 }
 
-                QByteArray ba = fp->readAll();
-                rapidjson::StringBuffer buf;
-                rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf);
-
-                switch (qFromBigEndian<uint32_t>(ba.left(4).data()))
-                {
-                case 0x01:
-                    _fParser.YiPiaoTongTradeFile(writer, ba);
-                    break;
-
-                case 0x02:
-                    _fParser.YiKaTongTradeFile(writer, ba);
-                    break;
-
-                case 0x03:
-                    _fParser.PhoneTicketTradeFile(writer, ba);
-                    break;
-
-                case 0x04:
-                    _fParser.BankCardTradeFile(writer, ba);
-                    break;
-
-                case 0x70:
-                    _fParser.QRCodeTradeFile(writer, ba);
-                    break;
-                }
-
-                save_json_file(fp->fileName(), buf);
                 fp->close();
+                fileName = fp->fileName();
                 delete fp;
                 _download_list.remove(id);
+
+                parse_file(fileName);
+                QFile::remove(fileName);
             }
         }
         else if (_ftp.currentCommand() == QFtp::List)
@@ -196,7 +182,7 @@ void ParseServiceWin::init_ftp_connect()
         {
             if (error)
             {
-                qDebug() << "ftp error: " << _ftp.errorString();
+                qDebug() << "ftp connect to host error: " << _ftp.errorString();
             }
         }
     });
@@ -209,7 +195,7 @@ void ParseServiceWin::init_ftp_connect()
         {
             _date = QDate::currentDate();
             _files.clear();
-            QString path = QString("%1%2").arg(_cfg.ftp.path).arg(_date.toString("yyyyMMdd"));
+            QString path = QString("%1%2").arg(_cfg.ftp.path).arg(_date.toString(FOLDER_FMT));
             _ftp.list(path);
             _ftp.cd(path);
         }
@@ -218,7 +204,7 @@ void ParseServiceWin::init_ftp_connect()
             QDate today = QDate::currentDate();
             _date_changed = (_date != today);
 
-            QString path = QString("%1%2").arg(_cfg.ftp.path).arg(_date.toString("yyyyMMdd"));
+            QString path = QString("%1%2").arg(_cfg.ftp.path).arg(_date.toString(FOLDER_FMT));
             _ftp.list(path);
             _ftp.cd(path);
 
@@ -259,35 +245,30 @@ void ParseServiceWin::load_cfg_file()
     _cfg.backup = cfg.value("backup").toString();
     cfg.endGroup();
 
-    QDir dir;
-    if (!dir.exists(_cfg.backup))
+    _backup.setPath(_cfg.backup);
+    if (!_backup.exists())
     {
-        if (!dir.mkpath(_cfg.backup))
+        if (!_backup.mkpath(_cfg.backup))
         {
-            qDebug() << "make path failed!" << _cfg.backup;
+            qDebug() << "make back up folder failed!" << _cfg.backup;
         }
     }
 
+    QDir dir;
     if (!dir.exists(CACHE_FOLDER))
     {
         dir.mkdir(CACHE_FOLDER);
     }
 }
 
-void ParseServiceWin::parse_files()
+void ParseServiceWin::parse_file(const QString& fileName)
 {
-    for (int i = 0; i < _cache.size(); ++i)
-    {
-        QFile fp(_cfg.ftp.path + _cache.at(i));
-        if (!fp.open(QIODevice::ReadOnly))
-        {
-            QMessageBox::warning(nullptr, "Warning", "file open failed!", QMessageBox::Ok);
-            return;
-        }
+    QFile fp(fileName);
 
+    if (fp.open(QIODevice::ReadOnly))
+    {
         QByteArray ba = fp.readAll();
         fp.close();
-
         rapidjson::StringBuffer buf;
         rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buf);
 
@@ -314,27 +295,86 @@ void ParseServiceWin::parse_files()
             break;
         }
 
-//        save_json_file(buf);
-
-        QCoreApplication::processEvents();
+        save_json_file(fileName, buf);
+    }
+    else
+    {
+        qDebug() << "file open failed. file name: " << fileName;
     }
 }
 
 void ParseServiceWin::save_json_file(const QString& filename, const rapidjson::StringBuffer& buffer)
 {
-    QString date = filename.mid(12, 8);
-    QDir dir;
-    if (!dir.exists(_cfg.backup + date))
+    QFileInfo fi(filename);
+    QString date = fi.fileName().mid(12, 8);
+    QDate dt = QDate::fromString(date, FOLDER_FMT);
+    if (!dt.isValid())
     {
-        dir.mkdir(_cfg.backup + date);
+        qDebug() << "file name error. parse date error. " << filename;
     }
 
-    QFile fp(dir.absolutePath() + "/" + filename);
+    QDir dir(_cfg.backup);
+    if (!dir.exists())
+    {
+        if (!dir.mkpath(_cfg.backup))
+        {
+            qDebug() << "make back up path error";
+            return;
+        }
+    }
 
-    if (fp.open(QIODevice::WriteOnly))
+    if (!dir.exists(dir.absolutePath() + "/" + date))
+    {
+        if (!dir.mkpath(dir.absolutePath() + "/" + date))
+        {
+            qDebug() << "make json folder path error";
+            return;
+        }
+    }
+
+    dir.cd(date);
+
+    QString filepath = QString("%1/%2.json").arg(dir.absolutePath()).arg(fi.baseName());
+
+    QFile fp(filepath);
+
+    if (fp.open(QIODevice::WriteOnly | QIODevice::Truncate))
     {
         fp.write(buffer.GetString());
         fp.close();
+    }
+    else
+    {
+        qDebug() << "save to json open file error! " << filepath;
+    }
+}
+
+void ParseServiceWin::clear_dirty_history()
+{
+    QDir dir(_cfg.backup);
+    if (!dir.exists())
+    {
+        qDebug() << "back up folder is not exist!";
+        return;
+    }
+
+    QStringList folders = dir.entryList(QDir::AllDirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    QDate dt;
+    QDate date = QDate::currentDate();
+
+    foreach (QString folder, folders)
+    {
+        dt = QDate::fromString(folder, FOLDER_FMT);
+
+        if (dt.daysTo(date) > _cfg.days)
+        {
+            dir.cd(folder);
+            if (!dir.removeRecursively())
+            {
+                qDebug() << "remove folder failed." << folder;
+            }
+            dir.cdUp();
+        }
     }
 }
 

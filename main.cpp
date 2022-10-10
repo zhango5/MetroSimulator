@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-//    qInstallMessageHandler(logMessageHandler);
+    qInstallMessageHandler(logMessageHandler);
     QFileInfo file(LOGFILE);
     QDir dir;
     dir.mkdir(file.absolutePath());
@@ -23,9 +23,15 @@ int main(int argc, char *argv[])
         QFile::remove(file.absoluteFilePath());
     }
 
+    qDebug("application start ...");
+
     MainWindow w;
     w.show();
-    return a.exec();
+    a.exec();
+
+    qDebug("application quit ...");
+
+    return 0;
 }
 
 /*****************************************************************************

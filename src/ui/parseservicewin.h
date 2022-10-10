@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QMap>
 #include <QFile>
+#include <QDir>
 #include "src/tools/fileparser.h"
 #include "qftp/qftp.h"
 
@@ -51,8 +52,9 @@ private:
     void init_db_connect();
     void init_ftp_connect();
     void load_cfg_file();
-    void parse_files();
+    void parse_file(const QString& fileName);
     void save_json_file(const QString& filename, const rapidjson::StringBuffer& buffer);
+    void clear_dirty_history();
 
     file_parse_cfg_t _cfg;
     FileParser _fParser;
@@ -62,6 +64,7 @@ private:
     QStringList _files;
     QStringList _cache;
     QDate       _date;
+    QDir        _backup;
     bool        _date_changed = false;
     QFtp::State _ftp_state = QFtp::State::Unconnected;
 
