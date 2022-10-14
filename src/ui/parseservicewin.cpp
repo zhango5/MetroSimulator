@@ -18,6 +18,8 @@
 #include <QDebug>
 #include <QtNetwork>
 
+//#define __TEST_DEBUG__
+
 #define CACHE_FOLDER "cache"
 #define FOLDER_FMT   "yyyyMMdd"
 
@@ -29,10 +31,16 @@ ParseServiceWin::ParseServiceWin(QWidget* parent)
     init_db_connect();
     init_ftp_connect();
     clear_dirty_history();
+    init_white_list();
 }
 
 ParseServiceWin::~ParseServiceWin()
 {
+    if (_fetchTimer.isActive())
+    {
+        _fetchTimer.stop();
+    }
+
     _ftp.close();
 }
 
@@ -131,6 +139,13 @@ void ParseServiceWin::init_ftp_connect()
             return;
         }
 
+        if (!_white_list.contains(info.name().left(2).toUpper()))
+        {
+            // not support
+            _files.append(info.name());
+            return;
+        }
+
         if (!_files.contains(info.name())) {
             if (QFile::exists(QString("%1/%2/%3.json").arg(_backup.absolutePath()).arg(_date.toString(FOLDER_FMT)).arg(QFileInfo(info.name()).baseName())))
             {
@@ -186,10 +201,22 @@ void ParseServiceWin::init_ftp_connect()
             }
         }
     });
+    connect(&_ftp, &QFtp::done, this, [&](bool error) {
+        qDebug() << "ftp done!";
+
+        if (error)
+        {
+            qDebug() << "ftp done but error: " << _ftp.errorString();
+        }
+    });
 
     // init timer
-    _fetchTimer.setInterval(_cfg.nFetchInterval);
+#ifdef __TEST_DEBUG__
+    _fetchTimer.setInterval(1000);
     _fetchTimer.setSingleShot(true);
+#else
+    _fetchTimer.setInterval(_cfg.nFetchInterval * 1000 * 60);
+#endif
     connect(&_fetchTimer, &QTimer::timeout, this, [&]() {
         if (_date.isNull())
         {
@@ -213,6 +240,15 @@ void ParseServiceWin::init_ftp_connect()
         }
 
     });
+}
+
+void ParseServiceWin::init_white_list()
+{
+    _white_list.append("UA");
+    _white_list.append("UY");
+    _white_list.append("UM");
+    _white_list.append("UB");
+    _white_list.append("UQ");
 }
 
 void ParseServiceWin::load_cfg_file()

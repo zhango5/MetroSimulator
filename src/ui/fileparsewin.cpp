@@ -135,6 +135,9 @@ void FileParseWin::load_cfg_file()
     {
         _strOpenFolder = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
     }
+
+    // open desktop every time
+    _strOpenFolder = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
 }
 
 void FileParseWin::save_cfg_file()
@@ -224,7 +227,7 @@ void FileParseWin::onFilePathClicked()
                                                         , _strOpenFolder
                                                         , "*.*");
 
-    //    QString filePath = "D:/20220829/UY01990101052022082906370901.01283A";
+        //QString filePath = "D:/20220829/UY01990101052022082906370901.01283A";
 
         if (filePath.isEmpty())
         {

@@ -1045,7 +1045,29 @@ void YiKaTongTradePub::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& 
 
 void YiKaTongTradePub::sqltransaction(QSqlQuery& query)
 {
-    Q_UNUSED(query);
+    query.bindValue(":txn_type", QVariant(TxnType));
+    query.bindValue(":transaction_date_time_hi", QVariant(TransactionDateTimeHi.c_str()));
+    query.bindValue(":transaction_data_time_lo", QVariant(TransactionDateTimeLo.c_str()));
+    query.bindValue(":line_id", QVariant(LineID.c_str()));
+    query.bindValue(":station_id", QVariant(StationID.c_str()));
+    query.bindValue(":device_id", QVariant(DeviceID.c_str()));
+    query.bindValue(":mode_code", QVariant(ModeCode));
+    query.bindValue(":udsn", QVariant(UDSN));
+    query.bindValue(":e_purse_transaction_type", QVariant(ePurseTransactionType));
+    query.bindValue(":city_code_trans_location", QVariant(CityCode_TransLocation));
+    query.bindValue(":city_code_belong_location", QVariant(CityCode_BelongLocation));
+    query.bindValue(":tac_sam_id", QVariant(TACSAMID.c_str()));
+    query.bindValue(":terminate_number", QVariant(TerminateNumber.c_str()));
+    query.bindValue(":sam_sn", QVariant(SAMSN));
+    query.bindValue(":sak", QVariant(SAK));
+    query.bindValue(":main_card_type", QVariant(MainCardType));
+    query.bindValue(":sub_card_type", QVariant(SubCardType));
+    query.bindValue(":card_ver", QVariant(CardVer));
+    query.bindValue(":recharge_sn", QVariant(RechargeSN));
+    query.bindValue(":add_value_date", QVariant(AddValueDate.c_str()));
+    query.bindValue(":sale_date", QVariant(SaleDate.c_str()));
+    query.bindValue(":system_trace_sn", QVariant(SystemTraceSN));
+    query.bindValue(":transaction_type", QVariant(TransactionType));
 }
 
 unsigned int YKTTicketPassengerComm_t::parse(const char* data)
@@ -1197,7 +1219,16 @@ void CellPhoneTradePub::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>&
 
 void CellPhoneTradePub::sqltransaction(QSqlQuery& query)
 {
-    Q_UNUSED(query);
+    query.bindValue(":txn_type", QVariant(TxnType));
+    query.bindValue(":transaction_date_time_hi", QVariant(TransactionDateTimeHi.c_str()));
+    query.bindValue(":transaction_data_time_lo", QVariant(TransactionDateTimeLo.c_str()));
+    query.bindValue(":line_id", QVariant(LineID.c_str()));
+    query.bindValue(":station_id", QVariant(StationID.c_str()));
+    query.bindValue(":device_id", QVariant(DeviceID.c_str()));
+    query.bindValue(":tac_sam_id", QVariant(TACSAMID));
+    query.bindValue(":mode_code", QVariant(ModeCode));
+    query.bindValue(":udsn", QVariant(UDSN));
+    query.bindValue(":transaction_type", QVariant(TransactionType));
 }
 
 unsigned int MobileDeduction_t::parse(const char* data)
@@ -1293,7 +1324,16 @@ void BankCardTradePub::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& 
 
 void BankCardTradePub::sqltransaction(QSqlQuery& query)
 {
-    Q_UNUSED(query);
+    query.bindValue(":txn_type", QVariant(TxnType));
+    query.bindValue(":transaction_date_time_hi", QVariant(TransactionDateTimeHi.c_str()));
+    query.bindValue(":transaction_data_time_lo", QVariant(TransactionDateTimeLo.c_str()));
+    query.bindValue(":line_id", QVariant(LineID.c_str()));
+    query.bindValue(":station_id", QVariant(StationID.c_str()));
+    query.bindValue(":device_id", QVariant(DeviceID.c_str()));
+    query.bindValue(":tac_sam_id", QVariant(TACSAMID));
+    query.bindValue(":mode_code", QVariant(ModeCode));
+    query.bindValue(":udsn", QVariant(UDSN));
+    query.bindValue(":transaction_type", QVariant(TransactionType));
 }
 
 unsigned int BankCardTicketComm_t::parse(const char* data)
@@ -1534,7 +1574,16 @@ void QRCodeTradePub::output(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wr
 
 void QRCodeTradePub::sqltransaction(QSqlQuery& query)
 {
-    Q_UNUSED(query);
+    query.bindValue(":txn_type", QVariant(TxnType));
+    query.bindValue(":transaction_date_time_hi", QVariant(TransactionDateTimeHi.c_str()));
+    query.bindValue(":transaction_data_time_lo", QVariant(TransactionDateTimeLo.c_str()));
+    query.bindValue(":line_id", QVariant(LineID.c_str()));
+    query.bindValue(":station_id", QVariant(StationID.c_str()));
+    query.bindValue(":device_id", QVariant(DeviceID.c_str()));
+    query.bindValue(":tac_sam_id", QVariant(TACSAMID));
+    query.bindValue(":mode_code", QVariant(ModeCode));
+    query.bindValue(":udsn", QVariant(UDSN));
+    query.bindValue(":transaction_type", QVariant(TransactionType));
 }
 
 unsigned int QRCodeTicketComm_t::parse(const char* data)

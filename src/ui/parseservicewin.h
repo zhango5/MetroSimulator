@@ -51,6 +51,7 @@ private:
     void init_widgets();
     void init_db_connect();
     void init_ftp_connect();
+    void init_white_list();
     void load_cfg_file();
     void parse_file(const QString& fileName);
     void save_json_file(const QString& filename, const rapidjson::StringBuffer& buffer);
@@ -69,6 +70,8 @@ private:
     QFtp::State _ftp_state = QFtp::State::Unconnected;
 
     QMap<int, QFile*> _download_list;
+
+    QStringList _white_list;
 
     QPushButton* _controller = nullptr;
     QProgressBar* _progressbar = nullptr;

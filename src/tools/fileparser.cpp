@@ -9,7 +9,7 @@
 
 FileParser::FileParser()
 {
-//    qDebug() << QSqlDatabase::drivers();
+    //qDebug() << QSqlDatabase::drivers();
 }
 
 FileParser::~FileParser()
@@ -63,6 +63,7 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
     CPUCardSpecialPurseSale_t cpucsp;
 
     QString date = QDate::currentDate().toString(TABLE_FMT);
+    bool exec = false;
 
     db.transaction();
     QSqlQuery query(db);
@@ -95,6 +96,8 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
             tc.sqltransaction(query);
             sjtic.sqltransaction(query);
             sjts.sqltransaction(query);
+
+            exec = true;
             break;
         case 2:
             writer.Key("SubGlobalMessageId"); writer.String("01_2");
@@ -140,6 +143,8 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
             tc.sqltransaction(query);
             cpuit.sqltransaction(query);
             cpucav.sqltransaction(query);
+
+            exec = true;
             break;
         case 6:
             writer.Key("SubGlobalMessageId"); writer.String("01_6");
@@ -157,6 +162,8 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
             tc.sqltransaction(query);
             sjtic.sqltransaction(query);
             sjtr.sqltransaction(query);
+
+            exec = true;
             break;
         case 7:
             writer.Key("SubGlobalMessageId"); writer.String("01_7");
@@ -221,6 +228,8 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
             query.bindValue(":sub_global_message_id", "01_12");
             tc.sqltransaction(query);
             ts.sqltransaction(query);
+
+            exec = true;
             break;
         case 13:
             writer.Key("SubGlobalMessageId"); writer.String("01_13");
@@ -235,6 +244,8 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
             query.bindValue(":sub_global_message_id", "01_13");
             tc.sqltransaction(query);
             tentry.sqltransaction(query);
+
+            exec = true;
             break;
         case 14:
             writer.Key("SubGlobalMessageId"); writer.String("01_14");
@@ -252,6 +263,8 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
             tc.sqltransaction(query);
             texit.sqltransaction(query);
             rs.sqltransaction(query);
+
+            exec = true;
             break;
         case 16:
             writer.Key("SubGlobalMessageId"); writer.String("01_16");
@@ -301,10 +314,13 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
 
     writer.EndObject();
 
-    if (!db.commit())
+    if (exec)
     {
-        qDebug() << query.lastError();
-        qDebug() << query.lastQuery();
+        if (!db.commit())
+        {
+            qDebug() << query.lastError();
+            qDebug() << query.lastQuery();
+        }
     }
 }
 
@@ -344,6 +360,7 @@ void FileParser::YiKaTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuff
     YKTMetroStart_t yktms;
 
     QString date = QDate::currentDate().toString(TABLE_FMT);
+    bool exec = false;
 
     db.transaction();
     QSqlQuery query(db);
@@ -386,6 +403,8 @@ void FileParser::YiKaTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuff
             tc.sqltransaction(query);
             cpuit.sqltransaction(query);
             cpucav.sqltransaction(query);
+
+            exec = true;
             break;
         case 42:
             writer.Key("SubGlobalMessageId"); writer.String("02_42");
@@ -400,6 +419,8 @@ void FileParser::YiKaTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuff
             query.bindValue(":sub_global_message_id", "02_42");
             tc.sqltransaction(query);
             cpucb.sqltransaction(query);
+
+            exec = true;
             break;
         case 44:
             writer.Key("SubGlobalMessageId"); writer.String("02_44");
@@ -409,11 +430,13 @@ void FileParser::YiKaTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuff
             tc.output(writer);
             ts.output(writer);
 
-//            query.prepare(txn_ypt_entry); // todo 交易公共类型不同，表不同
-//            traPub.sqltransaction(query);
-//            query.bindValue(":sub_global_message_id", "02_44");
-//            tc.sqltransaction(query);
-//            ts.sqltransaction(query);
+            query.prepare(txn_ykt_update.arg(date));
+            traPub.sqltransaction(query);
+            query.bindValue(":sub_global_message_id", "02_44");
+            tc.sqltransaction(query);
+            ts.sqltransaction(query);
+
+            exec = true;
             break;
         case 45:
             writer.Key("SubGlobalMessageId"); writer.String("02_45");
@@ -423,11 +446,13 @@ void FileParser::YiKaTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuff
             tc.output(writer);
             tentry.output(writer);
 
-//            query.prepare(txn_ypt_entry.arg(date)); // todo 交易公共类型不同，表不同
-//            traPub.sqltransaction(query);
-//            query.bindValue(":sub_global_message_id", "02_45");
-//            tc.sqltransaction(query);
-//            tentry.sqltransaction(query);
+            query.prepare(txn_ykt_entry.arg(date));
+            traPub.sqltransaction(query);
+            query.bindValue(":sub_global_message_id", "02_45");
+            tc.sqltransaction(query);
+            tentry.sqltransaction(query);
+
+            exec = true;
             break;
         case 46:
             writer.Key("SubGlobalMessageId"); writer.String("02_46");
@@ -445,6 +470,8 @@ void FileParser::YiKaTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuff
             tc.sqltransaction(query);
             yktte.sqltransaction(query);
             rs.sqltransaction(query);
+
+            exec = true;
             break;
         case 49:
             writer.Key("SubGlobalMessageId"); writer.String("02_49");
@@ -480,10 +507,13 @@ void FileParser::YiKaTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuff
 
     writer.EndObject();
 
-    if (!db.commit())
+    if (exec)
     {
-        qDebug() << query.lastError();
-        qDebug() << query.lastQuery();
+        if (!db.commit())
+        {
+            qDebug() << query.lastError();
+            qDebug() << query.lastQuery();
+        }
     }
 }
 
@@ -525,6 +555,7 @@ void FileParser::PhoneTicketTradeFile(rapidjson::PrettyWriter<rapidjson::StringB
     MobileDeduction_t md;
 
     QString date = QDate::currentDate().toString(TABLE_FMT);
+    bool exec = false;
 
     db.transaction();
     QSqlQuery query(db);
@@ -554,6 +585,8 @@ void FileParser::PhoneTicketTradeFile(rapidjson::PrettyWriter<rapidjson::StringB
             query.bindValue(":sub_global_message_id", "03_76");
             tc.sqltransaction(query);
             ts.sqltransaction(query);
+
+            exec = true;
             break;
         case 77:
             writer.Key("SubGlobalMessageId"); writer.String("03_77");
@@ -568,6 +601,8 @@ void FileParser::PhoneTicketTradeFile(rapidjson::PrettyWriter<rapidjson::StringB
             query.bindValue(":sub_global_message_id", "03_77");
             tc.sqltransaction(query);
             tentry.sqltransaction(query);
+
+            exec = true;
             break;
         case 78:
             writer.Key("SubGlobalMessageId"); writer.String("03_78");
@@ -585,6 +620,8 @@ void FileParser::PhoneTicketTradeFile(rapidjson::PrettyWriter<rapidjson::StringB
             tc.sqltransaction(query);
             texit.sqltransaction(query);
             rs.sqltransaction(query);
+
+            exec = true;
             break;
         case 80:
             writer.Key("SubGlobalMessageId"); writer.String("03_80");
@@ -618,10 +655,13 @@ void FileParser::PhoneTicketTradeFile(rapidjson::PrettyWriter<rapidjson::StringB
 
     writer.EndObject();
 
-    if (!db.commit())
+    if (exec)
     {
-        qDebug() << query.lastError();
-        qDebug() << query.lastQuery();
+        if (!db.commit())
+        {
+            qDebug() << query.lastError();
+            qDebug() << query.lastQuery();
+        }
     }
 }
 
@@ -655,6 +695,7 @@ void FileParser::BankCardTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuff
     BankCardDeduction_t bcd;
 
     QString date = QDate::currentDate().toString(TABLE_FMT);
+    bool exec = false;
 
     db.transaction();
     QSqlQuery query(db);
@@ -692,6 +733,8 @@ void FileParser::BankCardTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuff
             query.bindValue(":sub_global_message_id", "04_109");
             bctc.sqltransaction(query);
             bcen.sqltransaction(query);
+
+            exec = true;
             break;
         case 110:
             writer.Key("SubGlobalMessageId"); writer.String("04_110");
@@ -706,6 +749,8 @@ void FileParser::BankCardTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuff
             query.bindValue(":sub_global_message_id", "04_110");
             bctc.sqltransaction(query);
             bcex.sqltransaction(query);
+
+            exec = true;
             break;
         case 112:
             writer.Key("SubGlobalMessageId"); writer.String("04_112");
@@ -739,10 +784,13 @@ void FileParser::BankCardTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuff
 
     writer.EndObject();
 
-    if (!db.commit())
+    if (exec)
     {
-        qDebug() << query.lastError();
-        qDebug() << query.lastQuery();
+        if (!db.commit())
+        {
+            qDebug() << query.lastError();
+            qDebug() << query.lastQuery();
+        }
     }
 }
 
@@ -775,6 +823,7 @@ void FileParser::QRCodeTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuffer
     QRCodeExit_t exit;
 
     QString date = QDate::currentDate().toString(TABLE_FMT);
+    bool exec = false;
 
     db.transaction();
     QSqlQuery query(db);
@@ -807,6 +856,8 @@ void FileParser::QRCodeTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuffer
             tc.sqltransaction(query);
             ts.sqltransaction(query);
             unnamed.sqltransaction(query);
+
+            exec = true;
             break;
         case 145:
             writer.Key("SubGlobalMessageId"); writer.String("70_145");
@@ -821,6 +872,8 @@ void FileParser::QRCodeTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuffer
             query.bindValue(":sub_global_message_id", "70_145");
             tc.sqltransaction(query);
             unnamed.sqltransaction(query);
+
+            exec = true;
             break;
         case 146:
             writer.Key("SubGlobalMessageId"); writer.String("70_146");
@@ -835,6 +888,8 @@ void FileParser::QRCodeTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuffer
             query.bindValue(":sub_global_message_id", "70_146");
             tc.sqltransaction(query);
             exit.sqltransaction(query);
+
+            exec = true;
             break;
         default:
             break;
@@ -862,10 +917,13 @@ void FileParser::QRCodeTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuffer
 
     writer.EndObject();
 
-    if (!db.commit())
+    if (exec)
     {
-        qDebug() << query.lastError();
-        qDebug() << query.lastQuery();
+        if (!db.commit())
+        {
+            qDebug() << query.lastError();
+            qDebug() << query.lastQuery();
+        }
     }
 }
 
@@ -892,8 +950,6 @@ void FileParser::OpenDB(const QString& host, const QString& database, int port, 
     {
         qDebug() << "database not support transaction.";
     }
-
-    query = new QSqlQuery();
 }
 
 void FileParser::CloseDB()

@@ -6,6 +6,7 @@
 #include <QDateTime>
 #include <QTextStream>
 
+//#define __LOG_PLUS__
 #define LOGFILE   "./log/log.txt"
 
 void logMessageHandler(QtMsgType type, const QMessageLogContext& Context, const QString &sMsg);
@@ -83,10 +84,14 @@ void logMessageHandler(QtMsgType type, const QMessageLogContext& context, const 
         break;
     }
 
-//    QString context_info = QString("File:(%1) Line:(%2)").arg(QString(context.file)).arg(context.line);
+#ifdef __LOG_PLUS__
+    QString context_info = QString("File:(%1) Line:(%2)").arg(QString(context.file)).arg(context.line);
+#else
+    QString context_info;
+#endif
     QString current_date_time = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
     QString current_date = QString("(%1)").arg(current_date_time);
-    QString message = QString("%1 %2 %3 %4").arg(text).arg(current_date).arg(""/*context_info*/).arg(msg);
+    QString message = QString("%1 %2 %3 %4").arg(text).arg(current_date).arg(context_info).arg(msg);
 
     QFile file(LOGFILE);
     file.open(QIODevice::WriteOnly | QIODevice::Append);
