@@ -87,7 +87,7 @@ void YiPiaoTongTradePub::sqltransaction(QSqlQuery& query)
 {
     query.bindValue(":txn_type", QVariant(TxnType));
     query.bindValue(":transaction_date_time_hi", QVariant(TransactionDateTimeHi.c_str()));
-    query.bindValue(":transaction_data_time_lo", QVariant(TransactionDateTimeLo.c_str()));
+    query.bindValue(":transaction_date_time_lo", QVariant(TransactionDateTimeLo.c_str()));
     query.bindValue(":line_id", QVariant(LineID.c_str()));
     query.bindValue(":station_id", QVariant(StationID.c_str()));
     query.bindValue(":device_id", QVariant(DeviceID.c_str()));
@@ -137,7 +137,7 @@ void TicketComm_t::sqltransaction(QSqlQuery& query)
     query.bindValue(":ticket_family_type", QVariant(TicketFamilyType));
     query.bindValue(":ticket_type", QVariant(TicketType));
     query.bindValue(":ticket_catalog_id", QVariant(TicketCatalogID));
-    query.bindValue(":tiket_phy_id", QVariant(TicketPhyID.c_str()));
+    query.bindValue(":ticket_phy_id", QVariant(TicketPhyID.c_str()));
     query.bindValue(":ticket_logic_id", QVariant(TicketLogicID.c_str()));
     query.bindValue(":ticket_status", QVariant(TicketStatus));
     query.bindValue(":test_flag", QVariant(TestFlag));
@@ -1047,7 +1047,7 @@ void YiKaTongTradePub::sqltransaction(QSqlQuery& query)
 {
     query.bindValue(":txn_type", QVariant(TxnType));
     query.bindValue(":transaction_date_time_hi", QVariant(TransactionDateTimeHi.c_str()));
-    query.bindValue(":transaction_data_time_lo", QVariant(TransactionDateTimeLo.c_str()));
+    query.bindValue(":transaction_date_time_lo", QVariant(TransactionDateTimeLo.c_str()));
     query.bindValue(":line_id", QVariant(LineID.c_str()));
     query.bindValue(":station_id", QVariant(StationID.c_str()));
     query.bindValue(":device_id", QVariant(DeviceID.c_str()));
@@ -1221,7 +1221,7 @@ void CellPhoneTradePub::sqltransaction(QSqlQuery& query)
 {
     query.bindValue(":txn_type", QVariant(TxnType));
     query.bindValue(":transaction_date_time_hi", QVariant(TransactionDateTimeHi.c_str()));
-    query.bindValue(":transaction_data_time_lo", QVariant(TransactionDateTimeLo.c_str()));
+    query.bindValue(":transaction_date_time_lo", QVariant(TransactionDateTimeLo.c_str()));
     query.bindValue(":line_id", QVariant(LineID.c_str()));
     query.bindValue(":station_id", QVariant(StationID.c_str()));
     query.bindValue(":device_id", QVariant(DeviceID.c_str()));
@@ -1326,7 +1326,7 @@ void BankCardTradePub::sqltransaction(QSqlQuery& query)
 {
     query.bindValue(":txn_type", QVariant(TxnType));
     query.bindValue(":transaction_date_time_hi", QVariant(TransactionDateTimeHi.c_str()));
-    query.bindValue(":transaction_data_time_lo", QVariant(TransactionDateTimeLo.c_str()));
+    query.bindValue(":transaction_date_time_lo", QVariant(TransactionDateTimeLo.c_str()));
     query.bindValue(":line_id", QVariant(LineID.c_str()));
     query.bindValue(":station_id", QVariant(StationID.c_str()));
     query.bindValue(":device_id", QVariant(DeviceID.c_str()));
@@ -1576,7 +1576,7 @@ void QRCodeTradePub::sqltransaction(QSqlQuery& query)
 {
     query.bindValue(":txn_type", QVariant(TxnType));
     query.bindValue(":transaction_date_time_hi", QVariant(TransactionDateTimeHi.c_str()));
-    query.bindValue(":transaction_data_time_lo", QVariant(TransactionDateTimeLo.c_str()));
+    query.bindValue(":transaction_date_time_lo", QVariant(TransactionDateTimeLo.c_str()));
     query.bindValue(":line_id", QVariant(LineID.c_str()));
     query.bindValue(":station_id", QVariant(StationID.c_str()));
     query.bindValue(":device_id", QVariant(DeviceID.c_str()));

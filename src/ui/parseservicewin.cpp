@@ -41,6 +41,8 @@ ParseServiceWin::~ParseServiceWin()
         _fetchTimer.stop();
     }
 
+    disconnect(&_ftp, nullptr, nullptr, nullptr);
+
     _ftp.close();
 }
 
@@ -127,15 +129,40 @@ void ParseServiceWin::init_ftp_connect()
             _ftp.login(_cfg.ftp.user, _cfg.ftp.pwd);
     }
 
-    _ftp.cd(_cfg.ftp.path);
+    //if (!_cfg.ftp.path.isEmpty())
+    //{
+    //    _ftp.cd(_cfg.ftp.path);
+    //}
 
     connect(&_ftp, &QFtp::stateChanged, this, [&](int st) {
         qDebug() << "ftp state change: " << st;
         _ftp_state = static_cast<QFtp::State>(st);
+
+        if (QFtp::State::Unconnected == _ftp_state)
+        {
+            // reconnect when disconnect FTP
+            qDebug() << "FTP disconnect, start reconnect";
+
+            QUrl url(_cfg.ftp.host);
+            if (!url.isValid() || url.scheme().toLower() != QLatin1String("ftp"))
+            {
+                _ftp.connectToHost(_cfg.ftp.host, _cfg.ftp.port);
+                _ftp.login(_cfg.ftp.user, _cfg.ftp.pwd);
+            }
+            else
+            {
+                _ftp.connectToHost(url.host(), url.port(_cfg.ftp.port));
+                if (!url.userName().isEmpty())
+                    _ftp.login(QUrl::fromPercentEncoding(url.userName().toLatin1()), url.password());
+                else
+                    _ftp.login(_cfg.ftp.user, _cfg.ftp.pwd);
+            }
+        }
     });
     connect(&_ftp, &QFtp::listInfo, this, [&](const QUrlInfo &info) {
         if (!info.isFile() || !info.isReadable())
         {
+            // qDebug() << "list file error";
             return;
         }
 
@@ -189,7 +216,7 @@ void ParseServiceWin::init_ftp_connect()
         }
         else if (_ftp.currentCommand() == QFtp::List)
         {
-            qDebug() << "list command finished....";
+            //qDebug() << "list command finished....";
             _files.append(_cache);
             if (_date_changed) _files.clear();
         }
@@ -202,7 +229,7 @@ void ParseServiceWin::init_ftp_connect()
         }
     });
     connect(&_ftp, &QFtp::done, this, [&](bool error) {
-        qDebug() << "ftp done!";
+        //qDebug() << "ftp done!";
 
         if (error)
         {
@@ -225,6 +252,7 @@ void ParseServiceWin::init_ftp_connect()
             QString path = QString("%1%2").arg(_cfg.ftp.path).arg(_date.toString(FOLDER_FMT));
             _ftp.list(path);
             _ftp.cd(path);
+            // qDebug() << "cd " << path;
         }
         else
         {
@@ -234,11 +262,11 @@ void ParseServiceWin::init_ftp_connect()
             QString path = QString("%1%2").arg(_cfg.ftp.path).arg(_date.toString(FOLDER_FMT));
             _ftp.list(path);
             _ftp.cd(path);
+            // qDebug() << "change " << path;
 
             if (_date_changed)
                 _date = today;
         }
-
     });
 }
 

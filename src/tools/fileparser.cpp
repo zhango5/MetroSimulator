@@ -318,8 +318,13 @@ void FileParser::YiPiaoTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBu
     {
         if (!db.commit())
         {
-            qDebug() << query.lastError();
-            qDebug() << query.lastQuery();
+            QSqlError err = query.lastError();
+            if (!err.isValid())
+            {
+                return;
+            }
+
+            qDebug() << err.type() << err.text();
         }
     }
 }
@@ -511,8 +516,17 @@ void FileParser::YiKaTongTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuff
     {
         if (!db.commit())
         {
-            qDebug() << query.lastError();
-            qDebug() << query.lastQuery();
+            QSqlError err = query.lastError();
+            if (!err.isValid())
+            {
+                //qDebug() << "error is invalid.";
+                return;
+            }
+
+            qDebug() << err.type() << err.text();
+            //return;
+            //qDebug() << query.lastError();
+            //qDebug() << query.lastQuery();
         }
     }
 }
@@ -659,8 +673,13 @@ void FileParser::PhoneTicketTradeFile(rapidjson::PrettyWriter<rapidjson::StringB
     {
         if (!db.commit())
         {
-            qDebug() << query.lastError();
-            qDebug() << query.lastQuery();
+            QSqlError err = query.lastError();
+            if (!err.isValid())
+            {
+                return;
+            }
+
+            qDebug() << err.type() << err.text();
         }
     }
 }
@@ -788,8 +807,13 @@ void FileParser::BankCardTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuff
     {
         if (!db.commit())
         {
-            qDebug() << query.lastError();
-            qDebug() << query.lastQuery();
+            QSqlError err = query.lastError();
+            if (!err.isValid())
+            {
+                return;
+            }
+
+            qDebug() << err.type() << err.text();
         }
     }
 }
@@ -921,8 +945,13 @@ void FileParser::QRCodeTradeFile(rapidjson::PrettyWriter<rapidjson::StringBuffer
     {
         if (!db.commit())
         {
-            qDebug() << query.lastError();
-            qDebug() << query.lastQuery();
+            QSqlError err = query.lastError();
+            if (!err.isValid())
+            {
+                return;
+            }
+
+            qDebug() << err.type() << err.text();
         }
     }
 }
