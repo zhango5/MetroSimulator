@@ -52,6 +52,7 @@ private:
     void init_db_connect();
     void init_ftp_connect();
     void init_white_list();
+    void init_timer();
     void load_cfg_file();
     void parse_file(const QString& fileName);
     void save_json_file(const QString& filename, const rapidjson::StringBuffer& buffer);
@@ -59,9 +60,10 @@ private:
 
     file_parse_cfg_t _cfg;
     FileParser _fParser;
-    QFtp _ftp;
+    //QFtp _ftp;
     QFtp* pFtp = nullptr;
     QTimer _fetchTimer;
+    QTimer _resetTimer;
     QStringList _files;
     QStringList _cache;
     QDate       _date;
