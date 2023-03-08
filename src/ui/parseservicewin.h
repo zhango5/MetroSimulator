@@ -66,15 +66,15 @@ private:
     FileParser _fParser;
     //QFtp _ftp;
     QFtp* pFtp = nullptr;
-    QTimer _fetchTimer;
+    QTimer m_taskTimer;
     QStringList _files;
     QStringList _cache;
     QDate       _date;
     QDir        _backup;
-    bool        _date_changed = false;
+    bool        m_hasDateChanged = false;
     QFtp::State _ftp_state = QFtp::State::Unconnected;
 
-    QMap<int, QFile*> _download_list;
+    QMap<int, QFile*> m_downloads;
 
     QStringList _white_list;
 

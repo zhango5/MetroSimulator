@@ -37,9 +37,9 @@ ParseServiceWin::ParseServiceWin( QWidget* parent )
 
 ParseServiceWin::~ParseServiceWin()
 {
-    if ( _fetchTimer.isActive() )
+    if ( m_taskTimer.isActive() )
     {
-        _fetchTimer.stop();
+        m_taskTimer.stop();
     }
 
     if ( nullptr != pFtp )
@@ -90,15 +90,15 @@ void ParseServiceWin::init_widgets()
         if ( "checked" == _controller->property( "state" ) )
         {
             _controller->setProperty( "state", "unchecked" );
-            _fetchTimer.stop();
+            m_taskTimer.stop();
             _progressbar->setMaximum( 100 );
         }
         else
         {
             _controller->setProperty( "state", "checked" );
             _progressbar->setMaximum( 0 );
-            if ( !_fetchTimer.isActive() )
-                _fetchTimer.start();
+            if ( !m_taskTimer.isActive() )
+                m_taskTimer.start(); // start task timer
         }
         this->style()->polish( _controller );
     } );
@@ -111,8 +111,15 @@ void ParseServiceWin::init_db_connect()
 
 void ParseServiceWin::ftp_cli_login()
 {
+    if ( nullptr != pFtp )
+    {
+        // FTP exist
+        return;
+    }
+
     // connect FTP
     pFtp = new QFtp();
+    // login FTP server
     QUrl url( _cfg.ftp.host );
     if ( !url.isValid() || url.scheme().toLower() != QLatin1String( "ftp" ) )
     {
@@ -143,19 +150,19 @@ void ParseServiceWin::ftp_cli_login()
             qDebug() << "FTP state change unconnected.";
             break;
         case QFtp::Connected:
-            //qDebug() << "FTP state change connected.";
+            qDebug() << "FTP state change connected.";
             break;
         case QFtp::HostLookup:
-            //qDebug() << "FTP state change hostlookup.";
+            qDebug() << "FTP state change hostlookup.";
             break;
         case QFtp::LoggedIn:
             qDebug() << "FTP state change logged in.";
             break;
         case QFtp::Closing:
-            //qDebug() << "FTP state change closing.";
+            qDebug() << "FTP state change closing.";
             break;
         case QFtp::Connecting:
-            //qDebug() << "FTP state change connecting.";
+            qDebug() << "FTP state change connecting.";
             break;
         default:
             break;
@@ -163,9 +170,10 @@ void ParseServiceWin::ftp_cli_login()
     } );
     connect( pFtp, &QFtp::listInfo, this, [&] ( const QUrlInfo& info )
     {
+        // list command handle
         if ( !info.isFile() || !info.isReadable() )
         {
-            // qDebug() << "list file error";
+            qDebug() << QString("list command file [%1] readable [%2]").arg( info.isFile() ).arg( info.isReadable() );
             return;
         }
 
@@ -173,13 +181,16 @@ void ParseServiceWin::ftp_cli_login()
         {
             // not support
             _files.append( info.name() );
+            qDebug() << "list command file type not support!";
             return;
         }
 
         if ( !_files.contains( info.name() ) )
         {
-            if ( QFile::exists( QString( "%1/%2/%3.json" ).arg( _backup.absolutePath() ).arg( _date.toString( FOLDER_FMT ) ).arg( QFileInfo( info.name() ).baseName() ) ) )
+            if ( QFile::exists( QString( "%1/%2/%3.json" ).arg( _backup.absolutePath() )
+                .arg( _date.toString( FOLDER_FMT ) ).arg( QFileInfo( info.name() ).baseName() ) ) )
             {
+                // file has resolved 
                 _files.append( info.name() );
                 return;
             }
@@ -187,7 +198,8 @@ void ParseServiceWin::ftp_cli_login()
             QFile* fp = new QFile( QString( "%1/%2/%3" ).arg( QDir::currentPath(), CACHE_FOLDER, info.name() ) );
             if ( fp->open( QIODevice::ReadWrite ) )
             {
-                _download_list.insert( pFtp->get( info.name(), fp ), fp );
+                // open file, ready for download
+                m_downloads.insert( pFtp->get( info.name(), fp ), fp );
                 _cache.append( info.name() );
             }
             else
@@ -219,42 +231,37 @@ void ParseServiceWin::ftp_cli_login()
         case QFtp::ConnectToHost:
             break;
         case QFtp::Login:
-        {
-            start_list_ftp();
-        }
-        break;
+            {
+                start_list_ftp();
+            }
+            break;
         case QFtp::Close:
             break;
         case QFtp::List:
-        {
-            _files.append( _cache );
-            if ( _date_changed ) _files.clear();
-        }
-        break;
+            {
+                _files.append( _cache );
+                _cache.clear();
+                if ( m_hasDateChanged ) _files.clear();
+            }
+            break;
         case QFtp::Cd:
             break;
         case QFtp::Get:
-        {
-            QFile* fp = _download_list.value( id );
-            QString fileName;
-            if ( nullptr != fp )
             {
-                if ( error )
+                QFile* fp = m_downloads.value( id );
+                QString fileName;
+                if ( nullptr != fp )
                 {
-                    qDebug() << pFtp->errorString();
-                    return;
+                    fp->close();
+                    fileName = fp->fileName();
+                    delete fp;
+                    m_downloads.remove( id );
+
+                    parse_file( fileName );
+                    QFile::remove( fileName );
                 }
-
-                fp->close();
-                fileName = fp->fileName();
-                delete fp;
-                _download_list.remove( id );
-
-                parse_file( fileName );
-                QFile::remove( fileName );
             }
-        }
-        break;
+            break;
         case QFtp::Put:
             break;
         case QFtp::Remove:
@@ -273,12 +280,13 @@ void ParseServiceWin::ftp_cli_login()
     } );
     connect( pFtp, &QFtp::done, this, [&] ( bool error )
     {
-        qDebug() << "ftp done!";
-
         if ( error )
         {
-            qDebug() << "ftp done but error: " << pFtp->errorString();
-            return;
+            qDebug() << "FTP task execution completed but error: " << pFtp->errorString();
+        }
+        else
+        {
+            qDebug() << "FTP task execution completed ~~~~";
         }
 
         ftp_cli_logout();
@@ -298,12 +306,12 @@ void ParseServiceWin::init_timer()
 {
     // init timer
 #ifdef __TEST_DEBUG__
-    _fetchTimer.setInterval( 1000 );
-    _fetchTimer.setSingleShot( true );
+    m_taskTimer.setInterval( 1000 );
+    m_taskTimer.setSingleShot( true );
 #else
-    _fetchTimer.setInterval( _cfg.nFetchInterval * 1000 * 60 );
+    m_taskTimer.setInterval( _cfg.nFetchInterval * 1000 * 60 );
 #endif
-    connect( &_fetchTimer, &QTimer::timeout, this, [&] ()
+    connect( &m_taskTimer, &QTimer::timeout, this, [&] ()
     {
         if ( _date.isNull() )
         {
@@ -312,20 +320,21 @@ void ParseServiceWin::init_timer()
             QString path = QString( "%1%2" ).arg( _cfg.ftp.path ).arg( _date.toString( FOLDER_FMT ) );
             pFtp->list( path );
             pFtp->cd( path );
-            // qDebug() << "cd " << path;
         }
         else
         {
             QDate today = QDate::currentDate();
-            _date_changed = ( _date != today );
+            m_hasDateChanged = ( _date != today );
 
             QString path = QString( "%1%2" ).arg( _cfg.ftp.path ).arg( _date.toString( FOLDER_FMT ) );
             pFtp->list( path );
             pFtp->cd( path );
-            // qDebug() << "change " << path;
 
-            if ( _date_changed )
+            if ( m_hasDateChanged )
+            {
+                qDebug() << "enter the second day~";
                 _date = today;
+            }
         }
     } );
 }
@@ -333,29 +342,31 @@ void ParseServiceWin::init_timer()
 void ParseServiceWin::initial_task_timer()
 {
 #ifdef __TEST_DEBUG__
-    _fetchTimer.setInterval( 1000 * 30 );
-    //_fetchTimer.setSingleShot( true );
+    m_taskTimer.setInterval( 1000 * 30 );
+    //m_taskTimer.setSingleShot( true );
 #else
     const int min = 15;
     if ( _cfg.nFetchInterval < min )
     {
-        _fetchTimer.setInterval( min * 1000 * 60 );
+        m_taskTimer.setInterval( min * 1000 * 60 );
     }
     else
     {
-        _fetchTimer.setInterval( _cfg.nFetchInterval * 1000 * 60 );
+        m_taskTimer.setInterval( _cfg.nFetchInterval * 1000 * 60 );
     }
 #endif
-    connect( &_fetchTimer, &QTimer::timeout, this, [&] ()
+    connect( &m_taskTimer, &QTimer::timeout, this, [&] ()
     {
         if ( !check_service_valid() )
         {
             qDebug() << "out of service date.";
-            _fetchTimer.stop();
+            m_taskTimer.stop();
             return;
         }
 
-        ftp_cli_logout();
+        qDebug() << "FTP task start execution !";
+
+        //ftp_cli_logout();
         ftp_cli_login();
     } );
 }
@@ -369,19 +380,19 @@ void ParseServiceWin::start_list_ftp()
         QString path = QString( "%1%2" ).arg( _cfg.ftp.path ).arg( _date.toString( FOLDER_FMT ) );
         pFtp->list( path );
         pFtp->cd( path );
-        qDebug() << QString( "ftp cd path [%1]" ).arg( path );
+        qDebug() << QString( "FTP cd path [%1]" ).arg( path );
     }
     else
     {
         QDate today = QDate::currentDate();
-        _date_changed = ( _date != today );
+        m_hasDateChanged = ( _date != today );
 
         QString path = QString( "%1%2" ).arg( _cfg.ftp.path ).arg( _date.toString( FOLDER_FMT ) );
         pFtp->list( path );
         pFtp->cd( path );
-        qDebug() << QString( "ftp cd path [%1]" ).arg( path );
+        qDebug() << QString( "FTP cd path [%1]" ).arg( path );
 
-        if ( _date_changed )
+        if ( m_hasDateChanged )
             _date = today;
     }
 }
@@ -391,7 +402,7 @@ void ParseServiceWin::ftp_cli_logout()
     if ( nullptr != pFtp )
     {
         // logout ftp
-        qDebug() << "ftp client logout !!!";
+        qDebug() << "FTP client logout !!!";
 
         pFtp->abort();
         pFtp->close();
